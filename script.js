@@ -8,7 +8,7 @@ const getDirection = (originItem, destinationItem) => {
     let originItemY = parseFloat(originObject.top);
     let originItemX = parseFloat(originObject.left);
 
-    let angle = Math.atan2(destinationY - originItemY, destinationX - originItemX) * 180 / Math.PI + 90;
+    let angle = Math.atan2(destinationY - originItemY, destinationX - originItemX) * 180 / Math.PI;
     return angle
 }
 
