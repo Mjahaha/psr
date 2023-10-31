@@ -1,0 +1,33 @@
+body {
+    background-color: aqua;
+}
+#initialDetails {
+    display: none;
+}
+
+.item {
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    background-color: white;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}/*- the paper scissors rock classes will show the image centered horizontally and vertically */
+.paper {
+    background-image: url("./images/paper.jpg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    top: 100px;
+    left: 100px;
+}
+.scissors {
+    background-image: url("./images/scissors.jpg");
+    top: 200px;
+    left: 100px;
+}
+.rock {
+    background-image: url("./images/rock.png");
+    top: 200px;
+    left: 200px;
+}
