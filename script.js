@@ -56,13 +56,11 @@ const getTarget = (item) => {
         let targetX = parseFloat(targetObject.left);
         let targetY = parseFloat(targetObject.top);
         let distance = Math.sqrt(Math.pow(targetX - itemX, 2) + Math.pow(targetY - itemY, 2));
-        console.log({"distance": distance, "target": targetList[i]})
         if (distance < closestDistance || closestDistance === null) {
             closestDistance = distance;
             closestTarget = targetList[i];
         }
     }
-    console.log("the closest distance is " + closestDistance);
     return closestTarget;
     
 }
@@ -86,7 +84,10 @@ const runTimestep = () => {
     let items = field.children;
     items[0].style.backgroundColor = 'red';
     setInterval(() => {
-        moveItem(items[0]);
+        //loops over the moveItem function for each item
+        for (let i = 0; i < items.length; i++) {
+            moveItem(items[i]);
+        }
     }, 100);
 }
-runTimestep();
+runTimestep(); 
