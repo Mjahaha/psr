@@ -17,7 +17,7 @@ const populateField = (num) => {
         }
     }
 }
-populateField(10);
+populateField(100);
 const exampleItem = document.getElementById('1');
 
 
@@ -64,7 +64,6 @@ const getTarget = (item) => {
     return closestTarget;
     
 }
-getTarget(exampleItem);
 
 const moveItem = (item) => {
     let distance = 1;
