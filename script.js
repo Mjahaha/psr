@@ -1,6 +1,6 @@
 const field = document.getElementById('theField');
-const screenWidth = window.innerWidth;
-const screenHeight = window.innerHeight;
+const screenWidth = window.innerWidth - 60;
+const screenHeight = window.innerHeight - 60;
 
 
 const populateField = (num) => {
@@ -100,12 +100,21 @@ const collisionDetection = (item, target) => {
     let targetWidth = parseFloat(targetObject.width);
     let targetHeight = parseFloat(targetObject.height);
 
+    //check if item is colliding with target
     if (itemX < targetX + targetWidth &&
         itemX + itemWidth > targetX &&
         itemY < targetY + targetHeight &&
         itemY + itemHeight > targetY) 
-    {
-        target.remove();
+    {   
+        //check if item is predator or prey, sometimes it wasn't prey
+        preyClass = getPredatorPrey(item).preyClass;
+        if (target.classList[1] === preyClass) {
+            console.log(`${item.classList[1]} ate ${target.classList[1]}`)
+            target.remove();
+        } else {
+            item.remove();
+            console.log(`${target.classList[1]} ate ${item.classList[1]}`)
+        }
     } 
 }
 
@@ -113,7 +122,6 @@ const moveItem = (item) => {
     let distance = 1;
     let {closestTarget, instruction} = getTarget(item);
     let target = closestTarget;
-    console.log(target);
     let angle = getDirection(item, target);
 
     if (instruction === "flee") {
