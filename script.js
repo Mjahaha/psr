@@ -1,5 +1,6 @@
-
 const field = document.getElementById('theField');
+const screenWidth = window.innerWidth;
+const screenHeight = window.innerHeight;
 
 
 const populateField = (num) => {
@@ -87,6 +88,27 @@ const getTarget = (item) => {
     
 }
 
+const collisionDetection = (item, target) => {
+    let itemObject = getComputedStyle(item);
+    let itemX = parseFloat(itemObject.left);
+    let itemY = parseFloat(itemObject.top);
+    let itemWidth = parseFloat(itemObject.width);
+    let itemHeight = parseFloat(itemObject.height);
+    let targetObject = getComputedStyle(target);
+    let targetX = parseFloat(targetObject.left);
+    let targetY = parseFloat(targetObject.top);
+    let targetWidth = parseFloat(targetObject.width);
+    let targetHeight = parseFloat(targetObject.height);
+
+    if (itemX < targetX + targetWidth &&
+        itemX + itemWidth > targetX &&
+        itemY < targetY + targetHeight &&
+        itemY + itemHeight > targetY) 
+    {
+        target.remove();
+    } 
+}
+
 const moveItem = (item) => {
     let distance = 1;
     let {closestTarget, instruction} = getTarget(item);
@@ -94,20 +116,37 @@ const moveItem = (item) => {
     console.log(target);
     let angle = getDirection(item, target);
 
-    
     if (instruction === "flee") {
         angle += 180;
     }
-
 
     let x = distance * Math.cos(angle * Math.PI / 180);
     let y = distance * Math.sin(angle * Math.PI / 180);
 
     let newPosX = parseFloat(getComputedStyle(item).left) + x;
     let newPosY = parseFloat(getComputedStyle(item).top) + y;
+
+    //check if item is out of bounds
+    if (newPosX < 0) {
+        newPosX = 0;
+    }
+    if (newPosX > screenWidth) {
+        newPosX = screenWidth;
+    }
+    if (newPosY < 0) {
+        newPosY = 0;
+    }
+    if (newPosY > screenHeight) {
+        newPosY = screenHeight;
+    }
+
     item.style.left = newPosX + 'px';
     item.style.top = newPosY + 'px';
+
+    collisionDetection(item, target);
 }
+
+
 
 
 const runTimestep = () => {
