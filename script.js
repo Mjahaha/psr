@@ -1,3 +1,4 @@
+
 const field = document.getElementById('theField');
 
 
@@ -17,7 +18,7 @@ const populateField = (num) => {
         }
     }
 }
-populateField(100);
+populateField(30);
 const exampleItem = document.getElementById('1');
 
 
@@ -35,18 +36,32 @@ const getDirection = (originItem, destinationItem) => {
     return angle;
 }
 
+const getPredatorPrey = (item) => {
+    let theClass = item.classList[1];
+    let preyClass = "0";
+    let predatorClass = "0";
+    if (theClass == "rock") 
+        {preyClass = "scissors";
+        predatorClass = "paper";}
+    if (theClass == "paper") 
+        {preyClass = "rock";
+        predatorClass = "scissors";}
+    if (theClass == "scissors") 
+        {preyClass = "paper";
+        predatorClass = "rock";}
+    return {preyClass, predatorClass};
+}
+
 const getTarget = (item) => {
     let theClass = item.classList[1];
-    let targetClass = "0";
-    if (theClass == "rock") {targetClass = "scissors";}
-    if (theClass == "paper") {targetClass = "rock";}
-    if (theClass == "scissors") {targetClass = "paper";}
+    let {preyClass, predatorClass} = getPredatorPrey(item);
 
     let itemObject = getComputedStyle(item);
     let itemX = parseFloat(itemObject.left);
     let itemY = parseFloat(itemObject.top);
     
-    let targetList = document.getElementsByClassName(targetClass);
+    let targetList = document.getElementsByClassName(preyClass);
+    targetList = Array.from(targetList).concat(Array.from(document.getElementsByClassName(predatorClass)));
     let closestTarget = null;
     let closestDistance = null;
 
@@ -61,17 +76,33 @@ const getTarget = (item) => {
             closestTarget = targetList[i];
         }
     }
-    return closestTarget;
+
+    let instruction = "chase";
+    if (closestTarget.classList[1] === predatorClass) {
+        instruction = "flee";
+    }
+
+
+    return {closestTarget, instruction};
     
 }
 
 const moveItem = (item) => {
     let distance = 1;
-    let target = getTarget(item);
+    let {closestTarget, instruction} = getTarget(item);
+    let target = closestTarget;
+    console.log(target);
     let angle = getDirection(item, target);
+
+    
+    if (instruction === "flee") {
+        angle += 180;
+    }
+
 
     let x = distance * Math.cos(angle * Math.PI / 180);
     let y = distance * Math.sin(angle * Math.PI / 180);
+
     let newPosX = parseFloat(getComputedStyle(item).left) + x;
     let newPosY = parseFloat(getComputedStyle(item).top) + y;
     item.style.left = newPosX + 'px';
@@ -87,6 +118,6 @@ const runTimestep = () => {
         for (let i = 0; i < items.length; i++) {
             moveItem(items[i]);
         }
-    }, 100);
+    }, 1000/60);
 }
 runTimestep(); 
