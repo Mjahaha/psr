@@ -67,12 +67,12 @@ const getNearestPredPreySame = (item, field) => {
                 closestPrey = targetList[i];
             }
         }
-        if (targetClass === theClass) {
+        if (targetClass === theClass && targetList[i] != item) {
             if (distance < closestSameDistance || closestSameDistance === null) {
                 closestSameDistance = distance;
                 closestSame = targetList[i];
             }
-        }
+        } 
         
         
     }
@@ -81,6 +81,11 @@ const getNearestPredPreySame = (item, field) => {
 }
 
 const collisionDetection = (item, target) => {
+
+    if (target == null) {
+        return false;
+    }
+
     let itemObject = getComputedStyle(item);
     let itemX = parseFloat(itemObject.left);
     let itemY = parseFloat(itemObject.top);
@@ -141,27 +146,38 @@ const collisionPredPreyAction = (item, target, field) => {
 } 
 
 export const moveItem = (item, screenWidth, screenHeight, field) => {
-    let distance = 2;
+    let distance = 1.5;
     let { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame } = getNearestPredPreySame(item, field);
     let target;
 
+    //determine if the item is moving to predator or prey
     if (closestPredatorDistance < closestPreyDistance) {
         target = closestPredator;
     } else {
         target = closestPrey;
     }
 
+    //get the angle to the nearest predator or prey
     let angle = getDirection(item, target);
-
     if (closestPredatorDistance < closestPreyDistance) {
         angle += 180;
     }
 
+    //move the the right distance at the right angle to move toward nearest target
     let x = distance * Math.cos(angle * Math.PI / 180);
     let y = distance * Math.sin(angle * Math.PI / 180);
-
     let newPosX = parseFloat(getComputedStyle(item).left) + x;
     let newPosY = parseFloat(getComputedStyle(item).top) + y;
+
+    //check if the nearest same class target is collided with
+    if (collisionDetection(item, closestSame) ) {
+        console.log("my item id is " + item.id);
+        angle = getDirection(item, closestSame);
+        x = 2 * distance * Math.cos(angle * Math.PI / 180);
+        y = 2 * distance * Math.sin(angle * Math.PI / 180);
+        newPosX -= x;
+        newPosY -= y;
+    }
 
     //check if item is out of bounds
     if (newPosX < 0) {
