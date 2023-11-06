@@ -31,36 +31,53 @@ const getPredatorPrey = (item) => {
  
 
 const getNearestPredPreySame = (item, field) => {
-    let { preyClass, predatorClass} = getPredatorPrey(item);
+    let { theClass, preyClass, predatorClass} = getPredatorPrey(item);
 
     let itemObject = getComputedStyle(item);
     let itemX = parseFloat(itemObject.left);
     let itemY = parseFloat(itemObject.top);
     
-    let targetList = document.getElementsByClassName(preyClass);
-    targetList = Array.from(targetList).concat(Array.from(document.getElementsByClassName(predatorClass)));
-    let closestTarget = null;
-    let closestDistance = null;
+    //sets targetList to all children of field
+    let targetList = field.children;
+    let closestPredator = null;
+    let closestPredatorDistance = 1000000;
+    let closestPrey = null;
+    let closestPreyDistance = 1000000;
+    let closestSame = null;
+    let closestSameDistance = 1000000;
+
 
     //loop through targetList to find closest target
     for (let i = 0; i < targetList.length; i++) {
         let targetObject = getComputedStyle(targetList[i]);
+        let targetClass = targetList[i].classList[1];
         let targetX = parseFloat(targetObject.left);
         let targetY = parseFloat(targetObject.top);
         let distance = Math.sqrt(Math.pow(targetX - itemX, 2) + Math.pow(targetY - itemY, 2));
-        if (distance < closestDistance || closestDistance === null) {
-            closestDistance = distance;
-            closestTarget = targetList[i];
+        
+        if (targetClass === predatorClass) {
+            if (distance < closestPredatorDistance || closestPredatorDistance === null) {
+                closestPredatorDistance = distance;
+                closestPredator = targetList[i];
+            }
         }
+        if (targetClass === preyClass) {
+            if (distance < closestPreyDistance || closestPreyDistance === null) {
+                closestPreyDistance = distance;
+                closestPrey = targetList[i];
+            }
+        }
+        if (targetClass === theClass) {
+            if (distance < closestSameDistance || closestSameDistance === null) {
+                closestSameDistance = distance;
+                closestSame = targetList[i];
+            }
+        }
+        
+        
     }
 
-    let instruction = "chase";
-    //closestTarget = null condition there to prevent error when there are no targets
-    if (closestTarget == null || closestTarget.classList[1] === predatorClass) {
-        instruction = "flee";
-    }
-
-    return {closestTarget, instruction};
+    return { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame };
 }
 
 const collisionDetection = (item, target) => {
@@ -125,11 +142,18 @@ const collisionPredPreyAction = (item, target, field) => {
 
 export const moveItem = (item, screenWidth, screenHeight, field) => {
     let distance = 2;
-    let {closestTarget, instruction} = getNearestPredPreySame(item, field);
-    let target = closestTarget;
+    let { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame } = getNearestPredPreySame(item, field);
+    let target;
+
+    if (closestPredatorDistance < closestPreyDistance) {
+        target = closestPredator;
+    } else {
+        target = closestPrey;
+    }
+
     let angle = getDirection(item, target);
 
-    if (instruction === "flee") {
+    if (closestPredatorDistance < closestPreyDistance) {
         angle += 180;
     }
 
