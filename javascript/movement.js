@@ -1,5 +1,5 @@
 
-export const getDirection = (originItem, destinationItem) => {
+const getDirection = (originItem, destinationItem) => {
     let destinationObject = getComputedStyle(destinationItem);
     let originObject = getComputedStyle(originItem);
 
@@ -12,7 +12,7 @@ export const getDirection = (originItem, destinationItem) => {
     return angle;
 }
 
-export const getPredatorPrey = (item) => {
+const getPredatorPrey = (item) => {
     let theClass = item.classList[1];
     let preyClass = "0";
     let predatorClass = "0";
@@ -25,12 +25,13 @@ export const getPredatorPrey = (item) => {
     if (theClass == "scissors") 
         {preyClass = "paper";
         predatorClass = "rock";}
-    return {preyClass, predatorClass};
+    return { theClass, preyClass, predatorClass };
 }
 
-export const getTarget = (item) => {
-    let theClass = item.classList[1];
-    let {preyClass, predatorClass} = getPredatorPrey(item);
+ 
+
+const getNearestPredPreySame = (item, field) => {
+    let { preyClass, predatorClass} = getPredatorPrey(item);
 
     let itemObject = getComputedStyle(item);
     let itemX = parseFloat(itemObject.left);
@@ -62,7 +63,7 @@ export const getTarget = (item) => {
     return {closestTarget, instruction};
 }
 
-export const collisionDetection = (item, target, field) => {
+const collisionDetection = (item, target) => {
     let itemObject = getComputedStyle(item);
     let itemX = parseFloat(itemObject.left);
     let itemY = parseFloat(itemObject.top);
@@ -79,40 +80,52 @@ export const collisionDetection = (item, target, field) => {
         itemX + itemWidth > targetX &&
         itemY < targetY + targetHeight &&
         itemY + itemHeight > targetY) 
-    {   
-        //check if item is predator or prey, sometimes it wasn't prey
-        let { preyClass, predatorClass } = getPredatorPrey(item);
-        if (target.classList[1] === preyClass) {
-            //console.log(`${item.classList[1]} ate ${target.classList[1]}`)
-            //target.remove();
-            target.classList.remove(preyClass);
-            target.classList.add(item.classList[1]);
-        } else if (target.classList[1] === predatorClass)  {
-            //console.log(`${target.classList[1]} ate ${item.classList[1]}`)
-            //item.remove();
-            item.classList.remove(preyClass);
-            item.classList.add(item.classList[1]); 
-        }
-
-        //check if there is only one class left
-        let classesPresent = [];
-        let items = field.children;
-        for (let i = 0; i < items.length; i++) {
-            if (!classesPresent.includes(items[i].classList[1])) {
-                classesPresent.push(items[i].classList[1]);
-                if (classesPresent.length > 1) {
-                    return false;
-                }
-            }
-        }
-        console.log(`${classesPresent[0]} wins!`);
+        {
         return true;
-    }
+        }
+    return false;
 }
 
+
+
+const collisionPredPreyAction = (item, target, field) => {
+    
+    const collisionDetected = collisionDetection(item, target);
+    let { theClass, preyClass, predatorClass } = getPredatorPrey(item);
+    let targetClass = target.classList[1];
+
+    //check if item is colliding with target
+    if (collisionDetected && targetClass == preyClass) {   
+        //console.log(`${item.classList[1]} ate ${target.classList[1]}`)
+        //target.remove();
+        target.classList.remove(preyClass);
+        target.classList.add(item.classList[1]);
+    }
+    if (collisionDetected && targetClass == predatorClass) {
+        //console.log(`${target.classList[1]} ate ${item.classList[1]}`)
+        //item.remove();
+        item.classList.remove(preyClass);
+        item.classList.add(item.classList[1]); 
+    }
+
+    //check if there is only one class left
+    let classesPresent = [];
+    let items = field.children;
+    for (let i = 0; i < items.length; i++) {
+        if (!classesPresent.includes(items[i].classList[1])) {
+            classesPresent.push(items[i].classList[1]);
+            if (classesPresent.length > 1) {
+                return false;
+            }
+        }
+    }
+    console.log(`${classesPresent[0]} wins!`);
+    return true;
+} 
+
 export const moveItem = (item, screenWidth, screenHeight, field) => {
-    let distance = 10;
-    let {closestTarget, instruction} = getTarget(item);
+    let distance = 2;
+    let {closestTarget, instruction} = getNearestPredPreySame(item, field);
     let target = closestTarget;
     let angle = getDirection(item, target);
 
@@ -143,7 +156,7 @@ export const moveItem = (item, screenWidth, screenHeight, field) => {
     item.style.left = newPosX + 'px';
     item.style.top = newPosY + 'px';
 
-    if(collisionDetection(item, target, field)) {
+    if(collisionPredPreyAction(item, target, field)) {
         //only returns true if all items are the same classe
         return true;
     }
