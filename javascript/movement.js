@@ -171,7 +171,6 @@ export const moveItem = (item, screenWidth, screenHeight, field) => {
 
     //check if the nearest same class target is collided with
     if (collisionDetection(item, closestSame) ) {
-        console.log("my item id is " + item.id);
         angle = getDirection(item, closestSame);
         x = 2 * distance * Math.cos(angle * Math.PI / 180);
         y = 2 * distance * Math.sin(angle * Math.PI / 180);
