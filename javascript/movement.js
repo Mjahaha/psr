@@ -1,13 +1,18 @@
+import { replaceItemInSortedBinarySearch, addItemIntoSortedBinarySearch } from './arrayFunctions.js';
+import { data } from './data.js';
 
 const getDirection = (originItem, destinationItem) => {
+    //define object parameters
     let destinationObject = getComputedStyle(destinationItem);
     let originObject = getComputedStyle(originItem);
 
+    //get coordinates of objects
     let destinationY = parseFloat(destinationObject.top);
     let destinationX = parseFloat(destinationObject.left);
     let originItemY = parseFloat(originObject.top);
     let originItemX = parseFloat(originObject.left);
 
+    //work out angle between objects
     let angle = Math.atan2(destinationY - originItemY, destinationX - originItemX) * 180 / Math.PI;
     return angle;
 }
@@ -40,11 +45,11 @@ const getNearestPredPreySame = (item, field) => {
     //sets targetList to all children of field
     let targetList = field.children;
     let closestPredator = null;
-    let closestPredatorDistance = 1000000;
+    let closestPredatorDistance = 100000;
     let closestPrey = null;
-    let closestPreyDistance = 1000000;
+    let closestPreyDistance = 100000;
     let closestSame = null;
-    let closestSameDistance = 1000000;
+    let closestSameDistance = 100000;
 
 
     //loop through targetList to find closest target
@@ -72,9 +77,7 @@ const getNearestPredPreySame = (item, field) => {
                 closestSameDistance = distance;
                 closestSame = targetList[i];
             }
-        } 
-        
-        
+        }         
     }
 
     return { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame };
@@ -146,7 +149,7 @@ const collisionPredPreyAction = (item, target, field) => {
 } 
 
 export const moveItem = (item, screenWidth, screenHeight, field) => {
-    let distance = 1.5;
+    let distance = data.distance;
     let { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame } = getNearestPredPreySame(item, field);
     let target;
 
@@ -172,8 +175,8 @@ export const moveItem = (item, screenWidth, screenHeight, field) => {
     //check if the nearest same class target is collided with
     if (collisionDetection(item, closestSame) ) {
         angle = getDirection(item, closestSame);
-        x = 2 * distance * Math.cos(angle * Math.PI / 180);
-        y = 2 * distance * Math.sin(angle * Math.PI / 180);
+        x = distance * Math.cos(angle * Math.PI / 180);
+        y = distance * Math.sin(angle * Math.PI / 180);
         newPosX -= x;
         newPosY -= y;
     }
