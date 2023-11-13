@@ -6,10 +6,10 @@ const screenWidth = data.screenWidth;
 const screenHeight = data.screenHeight;
 
 import { moveItem } from "./movement.js";
-import { populateField } from "./arena.js";
+import { setUpStartDetails, populateFieldClassic } from "./arena.js";
 
-
-populateField(30);
+setUpStartDetails();
+//populateField(30);
 
 let runTimestep;
 const runTimestepFunction = () => {
@@ -22,4 +22,13 @@ const runTimestepFunction = () => {
         }
     }, 1000/60);
 }
-runTimestepFunction();
+
+document.getElementById('startBattle').addEventListener('click', (event) => {
+    event.preventDefault();
+    let num = document.getElementById('num').value;
+    num = num * 3;
+    data.startDetails.innerHTML = "";
+    populateFieldClassic(num); 
+    runTimestepFunction();
+});
+

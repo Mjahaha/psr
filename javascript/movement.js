@@ -2,9 +2,15 @@ import { replaceItemInSortedBinarySearch, addItemIntoSortedBinarySearch } from '
 import { data } from './data.js';
 
 const getDirection = (originItem, destinationItem) => {
-    //define object parameters
+    //define object parameters and throw error if not defined
+    try {
+        let destinationObject = getComputedStyle(destinationItem);
+        let originObject = getComputedStyle(originItem);
+    } catch (error) {
+        return;
+    }
     let destinationObject = getComputedStyle(destinationItem);
-    let originObject = getComputedStyle(originItem);
+    let originObject = getComputedStyle(originItem); 
 
     //get coordinates of objects
     let destinationY = parseFloat(destinationObject.top);

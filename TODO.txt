@@ -1,0 +1,22 @@
+General changes 
+- adjust collision to not move away from other item further than edge of the border
+
+
+Arena changes 
+Up to date 
+
+Teams
+- add unaligned class to items
+- remove targetList into its own function 
+- add a radius of 200px limit to allow running from nearest predator 
+- add other color options for items 
+- make the same colour items not be predators or prey but be in the same list 
+
+Efficiency changes
+Using binary search over sorted arrays
+- create my arrays, six of them (X and Y for each item class)
+- maintain my arrays when movement occurs 
+- create the function to look up and down arrays for nearest item (for predators, prey and same).
+- have some sort of memory of both the index in my array, and the distance to nearest predPreySame 
+
+
