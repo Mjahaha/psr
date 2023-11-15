@@ -50,41 +50,52 @@ const getNearestPredPreySame = (item, field) => {
     
     //sets targetList to all children of field
     let targetList = [...document.getElementsByClassName("paper"), ...document.getElementsByClassName("scissors"), ...document.getElementsByClassName("rock")];
+    let chaseTargetList = [...document.getElementsByClassName(preyClass), ...document.getElementsByClassName(predatorClass)];
+    let sameTargetList = [...document.getElementsByClassName(theClass)];
     let closestPredator = null;
     let closestPredatorDistance = 100000;
     let closestPrey = null;
     let closestPreyDistance = 100000;
     let closestSame = null;
     let closestSameDistance = 100000;
-
-
-    //loop through targetList to find closest target
-    for (let i = 0; i < targetList.length; i++) {
-        let targetObject = getComputedStyle(targetList[i]);
-        let targetClass = targetList[i].classList[1];
+    
+    //loop through predators and prey in chaseTargetList to find closest target
+    for (let i = 0; i < chaseTargetList.length; i++) {
+        let targetObject = getComputedStyle(chaseTargetList[i]);
+        let targetClass = chaseTargetList[i].classList[1];
         let targetX = parseFloat(targetObject.left);
         let targetY = parseFloat(targetObject.top);
         let distance = Math.sqrt(Math.pow(targetX - itemX, 2) + Math.pow(targetY - itemY, 2));
         
-        if (targetClass === predatorClass) {
+        if (targetClass === predatorClass && distance < 200) {
             if (distance < closestPredatorDistance || closestPredatorDistance === null) {
                 closestPredatorDistance = distance;
-                closestPredator = targetList[i];
+                closestPredator = chaseTargetList[i];
             }
-        }
-        if (targetClass === preyClass) {
+        } else {
             if (distance < closestPreyDistance || closestPreyDistance === null) {
                 closestPreyDistance = distance;
-                closestPrey = targetList[i];
+                closestPrey = chaseTargetList[i];
             }
         }
-        if (targetClass === theClass && targetList[i] != item) {
+    }     
+
+    //loop through targets of the same class in sameTargetList to find closest same
+    for (let i = 0; i < sameTargetList.length; i++) {
+        let targetObject = getComputedStyle(sameTargetList[i]);
+        let targetClass = sameTargetList[i].classList[1];
+        let targetX = parseFloat(targetObject.left);
+        let targetY = parseFloat(targetObject.top);
+        let distance = Math.sqrt(Math.pow(targetX - itemX, 2) + Math.pow(targetY - itemY, 2));
+        
+        if (targetClass === theClass && sameTargetList[i] != item) {
             if (distance < closestSameDistance || closestSameDistance === null) {
                 closestSameDistance = distance;
-                closestSame = targetList[i];
+                closestSame = sameTargetList[i];
             }
         }         
     }
+    
 
     return { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame };
 }
@@ -128,15 +139,15 @@ const collisionPredPreyAction = (item, target, field) => {
     //check if item is colliding with target
     if (collisionDetected && targetClass == preyClass) {   
         //console.log(`${item.classList[1]} ate ${target.classList[1]}`)
-        //target.remove();
-        target.classList.remove(preyClass);
-        target.classList.add(item.classList[1]);
+        target.remove();
+        //target.classList.remove(preyClass);
+        //target.classList.add(item.classList[1]);
     }
     if (collisionDetected && targetClass == predatorClass) {
         //console.log(`${target.classList[1]} ate ${item.classList[1]}`)
-        //item.remove();
-        item.classList.remove(preyClass);
-        item.classList.add(item.classList[1]); 
+        item.remove();
+        //item.classList.remove(preyClass);
+        //item.classList.add(item.classList[1]); 
     }
 
     //check if there is only one class left
