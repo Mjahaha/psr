@@ -49,7 +49,7 @@ const getNearestPredPreySame = (item, field) => {
     let itemY = parseFloat(itemObject.top);
     
     //sets targetList to all children of field
-    let targetList = field.children;
+    let targetList = [...document.getElementsByClassName("paper"), ...document.getElementsByClassName("scissors"), ...document.getElementsByClassName("rock")];
     let closestPredator = null;
     let closestPredatorDistance = 100000;
     let closestPrey = null;

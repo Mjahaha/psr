@@ -1,5 +1,5 @@
 body {
-    background-color: aqua;
+    background-color: rgb(255, 255, 255);
 }
 #initialDetails {
     display: none;
@@ -16,17 +16,17 @@ body {
 }
 
 .paper {
-    background-image: url("./images/paper.jpg");
+    background-image: url("./images/paper.webp");
     top: 100px;
     left: 500px;
 }
 .scissors {
-    background-image: url("./images/scissors.jpg");
+    background-image: url("./images/scissors.webp");
     top: 100px;
     left: 100px;
 }
 .rock {
-    background-image: url("./images/rock.png");
+    background-image: url("./images/rock.webp");
     top: 400px;
     left: 200px;
 }

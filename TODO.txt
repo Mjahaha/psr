@@ -1,9 +1,9 @@
 General changes 
 - adjust collision to not move away from other item further than edge of the border
-
+- Remove values now stored in the data module to from being arguments in some functions (e.g. field in moveItem())
 
 Arena changes 
-Up to date 
+- do CSS of the changes for startup
 
 Teams
 - add unaligned class to items
