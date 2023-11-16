@@ -41,7 +41,7 @@ const getPredatorPrey = (item) => {
 
  
 
-const getNearestPredPreySame = (item, field) => {
+const getNearestPredPreySame = (item) => {
     let { theClass, preyClass, predatorClass} = getPredatorPrey(item);
 
     let itemObject = getComputedStyle(item);
@@ -49,7 +49,6 @@ const getNearestPredPreySame = (item, field) => {
     let itemY = parseFloat(itemObject.top);
     
     //sets targetList to all children of field
-    let targetList = [...document.getElementsByClassName("paper"), ...document.getElementsByClassName("scissors"), ...document.getElementsByClassName("rock")];
     let chaseTargetList = [...document.getElementsByClassName(preyClass), ...document.getElementsByClassName(predatorClass)];
     let sameTargetList = [...document.getElementsByClassName(theClass)];
     let closestPredator = null;
@@ -67,7 +66,7 @@ const getNearestPredPreySame = (item, field) => {
         let targetY = parseFloat(targetObject.top);
         let distance = Math.sqrt(Math.pow(targetX - itemX, 2) + Math.pow(targetY - itemY, 2));
         
-        if (targetClass === predatorClass && distance < 200) {
+        if (targetClass === predatorClass) {
             if (distance < closestPredatorDistance || closestPredatorDistance === null) {
                 closestPredatorDistance = distance;
                 closestPredator = chaseTargetList[i];
@@ -130,29 +129,47 @@ const collisionDetection = (item, target) => {
 
 
 
-const collisionPredPreyAction = (item, target, field) => {
+const collisionPredPreyAction = (item, target) => {
     
     const collisionDetected = collisionDetection(item, target);
     let { theClass, preyClass, predatorClass } = getPredatorPrey(item);
-    let targetClass = target.classList[1];
+    let targetClass;
+    try {
+        targetClass = target.classList[1];
+    } catch (error) {
+        return true;
+    }
 
     //check if item is colliding with target
+    let team;
     if (collisionDetected && targetClass == preyClass) {   
-        //console.log(`${item.classList[1]} ate ${target.classList[1]}`)
-        target.remove();
-        //target.classList.remove(preyClass);
-        //target.classList.add(item.classList[1]);
+        if (data.captureKill == "capture") {
+            //this fuckery is because you can't splice a class list and I need to maintain the order
+            team = target.classList[2]; 
+            target.classList.remove(team);
+            target.classList.remove(preyClass);
+            target.classList.add(item.classList[1]);
+            target.classList.add(team);
+        } else {
+            target.remove();
+        }
     }
     if (collisionDetected && targetClass == predatorClass) {
-        //console.log(`${target.classList[1]} ate ${item.classList[1]}`)
-        item.remove();
-        //item.classList.remove(preyClass);
-        //item.classList.add(item.classList[1]); 
+        if (data.captureKill == "capture") {
+            //this fuckery is because you can't splice a class list and I need to maintain the order
+            team = item.classList[2];
+            item.classList.remove(team);
+            item.classList.remove(theClass);
+            item.classList.add(target.classList[1]);
+            item.classList.add(team);
+        } else {
+            item.remove();
+        }
     }
 
     //check if there is only one class left
     let classesPresent = [];
-    let items = field.children;
+    let items = data.field.children;
     for (let i = 0; i < items.length; i++) {
         if (!classesPresent.includes(items[i].classList[1])) {
             classesPresent.push(items[i].classList[1]);
@@ -167,7 +184,7 @@ const collisionPredPreyAction = (item, target, field) => {
 
 export const moveItem = (item, screenWidth, screenHeight, field) => {
     let distance = data.distance;
-    let { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame } = getNearestPredPreySame(item, field);
+    let { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame } = getNearestPredPreySame(item);
     let target;
 
     //determine if the item is moving to predator or prey
@@ -215,7 +232,7 @@ export const moveItem = (item, screenWidth, screenHeight, field) => {
     item.style.left = newPosX + 'px';
     item.style.top = newPosY + 'px';
 
-    if(collisionPredPreyAction(item, target, field)) {
+    if(collisionPredPreyAction(item, target)) {
         //only returns true if all items are the same classe
         return true;
     }

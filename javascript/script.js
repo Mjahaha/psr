@@ -14,7 +14,7 @@ setUpStartDetails();
 let runTimestep;
 const runTimestepFunction = () => {
     let items = field.children;
-    items[0].style.backgroundColor = 'red';
+    //items[0].style.backgroundColor = 'red';
     runTimestep = setInterval(() => {
         //loops over the moveItem function for each item
         for (let i = 0; i < items.length; i++) {
@@ -26,6 +26,7 @@ const runTimestepFunction = () => {
 document.getElementById('startBattle').addEventListener('click', (event) => {
     event.preventDefault();
     let num = document.getElementById('num').value;
+    data.captureKill = document.querySelector('input[name="captureKill"]:checked').value;
     num = num * 3;
     data.startDetails.innerHTML = "";
     populateFieldClassic(num); 
