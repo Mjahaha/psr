@@ -48,9 +48,20 @@ const getNearestPredPreySame = (item) => {
     let itemX = parseFloat(itemObject.left);
     let itemY = parseFloat(itemObject.top);
     
-    //sets targetList to all children of field
-    let chaseTargetList = [...document.getElementsByClassName(preyClass), ...document.getElementsByClassName(predatorClass)];
-    let sameTargetList = [...document.getElementsByClassName(theClass)];
+    //determines who should be chased and who should be run from
+    let chaseTargetList;
+    let sameTargetList;
+    if(item.classList[2] == "unaligned") {
+        chaseTargetList = [...document.getElementsByClassName(preyClass), ...document.getElementsByClassName(predatorClass)];
+        sameTargetList = [...document.getElementsByClassName(theClass)];
+    } else {
+        //creates chaseTargetList by getting an array of all predators and prey classes, and then filtering out the ones that are on the same team
+        //creates sameTargetList by getting elements of the same class as the item and adding all items of the same team, then removes values listed twice
+        chaseTargetList = [...document.getElementsByClassName(preyClass), ...document.getElementsByClassName(predatorClass)].filter((ArrayItem) => item.classList[2] != ArrayItem.classList[2]);
+        sameTargetList = [...new Set([...document.getElementsByClassName(theClass), ...document.getElementsByClassName(item.classList[2])])];
+        //console.log('sameTargetList is for a '+ item.classList[1] + ' ' + item.classList[2] + ' is ' + sameTargetList.map((item) => item.classList[1] + ' ' + item.classList[2]));
+        console.log('chaseTargetList is for a '+ item.classList[1] + ' ' + item.classList[2] + ' is ' + chaseTargetList.map((item) => item.classList[1] + ' ' + item.classList[2]));
+    }
     let closestPredator = null;
     let closestPredatorDistance = 100000;
     let closestPrey = null;
@@ -145,7 +156,7 @@ const collisionPredPreyAction = (item, target) => {
     if (collisionDetected && targetClass == preyClass) {   
         if (data.captureKill == "capture") {
             //this fuckery is because you can't splice a class list and I need to maintain the order
-            team = target.classList[2]; 
+            team = item.classList[2]; 
             target.classList.remove(team);
             target.classList.remove(preyClass);
             target.classList.add(item.classList[1]);
@@ -157,7 +168,7 @@ const collisionPredPreyAction = (item, target) => {
     if (collisionDetected && targetClass == predatorClass) {
         if (data.captureKill == "capture") {
             //this fuckery is because you can't splice a class list and I need to maintain the order
-            team = item.classList[2];
+            team = target.classList[2];
             item.classList.remove(team);
             item.classList.remove(theClass);
             item.classList.add(target.classList[1]);
@@ -178,7 +189,8 @@ const collisionPredPreyAction = (item, target) => {
             }
         }
     }
-    console.log(`${classesPresent[0]} wins!`);
+    data.startDetails.innerHTML = `<h1>${classesPresent[0]} wins!</h1>`;
+    //console.log(`${classesPresent[0]} wins!`);
     return true;
 } 
 

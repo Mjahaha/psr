@@ -6,7 +6,7 @@ const screenWidth = data.screenWidth;
 const screenHeight = data.screenHeight;
 
 import { moveItem } from "./movement.js";
-import { setUpStartDetails, populateFieldClassic } from "./arena.js";
+import { setUpStartDetails, populateFieldClassic, populateFieldTeams } from "./arena.js";
 
 setUpStartDetails();
 //populateField(30);
@@ -29,6 +29,7 @@ document.getElementById('startBattle').addEventListener('click', (event) => {
     data.captureKill = document.querySelector('input[name="captureKill"]:checked').value;
     num = num * 3;
     data.startDetails.innerHTML = "";
+    //populateFieldTeams(num); 
     populateFieldClassic(num); 
     runTimestepFunction();
 });
