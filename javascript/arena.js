@@ -5,14 +5,17 @@ export const setUpStartDetails = () => {
     //and radio buttons with a choice of 'Capture' and 'Kill'
     //and a button labelled 'Start Battle'
     data.startDetails.innerHTML = `
+    <h1>Welcome to<br>Rock, Paper, Scissors Battle Royale!</h1>
     <form>
-        <label for="num">How many of each item should we spawn:</label>
+        <label for="num">How many of each item should we spawn?</label>
         <input type="number" id="num" name="num" min="1" max="90" value="20">
         <br>
-        <label for="capture">Capture</label>
+        <div>
+        <label for="capture">Capture:</label>
         <input type="radio" id="capture" name="captureKill" value="capture" checked>
-        <label for="kill">Kill</label> 
+        <label for="kill">Kill:</label> 
         <input type="radio" id="kill" name="captureKill" value="kill">
+        </div>
         <br>
         <input id="startBattle" type="submit" value="Start Battle">
     </form>
