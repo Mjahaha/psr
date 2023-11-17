@@ -15,6 +15,7 @@ body, input {
     justify-content: center;
     height: 80vh;
     text-align: center;
+    z-index: 2;
 }
 
 .item {
@@ -42,3 +43,10 @@ body, input {
     top: 400px;
     left: 200px;
 }
+
+.paper.blue { background-image: url("./images/paperBlue.png"); }
+.scissors.blue { background-image: url("./images/scissorsBlue.png"); }
+.rock.blue { background-image: url("./images/rockBlue.png"); }
+.paper.red { background-image: url("./images/paperRed.png"); }
+.scissors.red { background-image: url("./images/scissorsRed.png"); }
+.rock.red { background-image: url("./images/rockRed.png"); }

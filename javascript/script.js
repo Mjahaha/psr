@@ -29,8 +29,8 @@ document.getElementById('startBattle').addEventListener('click', (event) => {
     data.captureKill = document.querySelector('input[name="captureKill"]:checked').value;
     num = num * 3;
     data.startDetails.innerHTML = "";
-    //populateFieldTeams(num); 
-    populateFieldClassic(num); 
+    populateFieldTeams(num); 
+    //populateFieldClassic(num); 
     runTimestepFunction();
 });
 

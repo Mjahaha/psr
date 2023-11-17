@@ -60,7 +60,7 @@ const getNearestPredPreySame = (item) => {
         chaseTargetList = [...document.getElementsByClassName(preyClass), ...document.getElementsByClassName(predatorClass)].filter((ArrayItem) => item.classList[2] != ArrayItem.classList[2]);
         sameTargetList = [...new Set([...document.getElementsByClassName(theClass), ...document.getElementsByClassName(item.classList[2])])];
         //console.log('sameTargetList is for a '+ item.classList[1] + ' ' + item.classList[2] + ' is ' + sameTargetList.map((item) => item.classList[1] + ' ' + item.classList[2]));
-        console.log('chaseTargetList is for a '+ item.classList[1] + ' ' + item.classList[2] + ' is ' + chaseTargetList.map((item) => item.classList[1] + ' ' + item.classList[2]));
+        //console.log('chaseTargetList is for a '+ item.classList[1] + ' ' + item.classList[2] + ' is ' + chaseTargetList.map((item) => item.classList[1] + ' ' + item.classList[2]));
     }
     let closestPredator = null;
     let closestPredatorDistance = 100000;
@@ -153,26 +153,38 @@ const collisionPredPreyAction = (item, target) => {
 
     //check if item is colliding with target
     let team;
-    if (collisionDetected && targetClass == preyClass) {   
+    if (collisionDetected && targetClass == preyClass) {   //the target is to loose
         if (data.captureKill == "capture") {
-            //this fuckery is because you can't splice a class list and I need to maintain the order
-            team = item.classList[2]; 
-            target.classList.remove(team);
-            target.classList.remove(preyClass);
-            target.classList.add(item.classList[1]);
-            target.classList.add(team);
+            //this fuckery is because you can't splice a class list and we need to maintain the order
+            if (item.classList[2] === "unaligned") {    //if the item is unaligned, duplicate the unaligned item
+                //console.log(`The target ${target.classList[2]} ${target.classList[1]}, has struck the a ${item.classList[2]} ${item.classList[1]}.`);
+                target.classList.remove(target.classList[2]);
+                target.classList.remove(target.classList[1]);
+                target.classList.add(item.classList[1]);
+                target.classList.add(item.classList[2]);
+                //console.log(`The target is now a ${target.classList[2]} ${target.classList[1]}.`);
+            } else {                                    //if the item is on a team, swap targets team
+                target.classList.remove(target.classList[2]);
+                target.classList.add(item.classList[2]);
+            }
         } else {
             target.remove();
         }
     }
-    if (collisionDetected && targetClass == predatorClass) {
+    if (collisionDetected && targetClass == predatorClass) {    //the item is to loose
         if (data.captureKill == "capture") {
-            //this fuckery is because you can't splice a class list and I need to maintain the order
-            team = target.classList[2];
-            item.classList.remove(team);
-            item.classList.remove(theClass);
-            item.classList.add(target.classList[1]);
-            item.classList.add(team);
+            //this fuckery is because you can't splice a class list and we need to maintain the order
+            if (item.classList[2] === "unaligned") {    //if the item is unaligned, duplicate the unaligned item
+                //console.log(`The item ${item.classList[2]} ${item.classList[1]}, has struck the a ${target.classList[2]} ${target.classList[1]}.`);
+                item.classList.remove(item.classList[2]);
+                item.classList.remove(item.classList[1]);
+                item.classList.add(target.classList[1]);
+                item.classList.add(target.classList[2]);
+                //console.log(`The item is now a ${item.classList[2]} ${item.classList[1]}.`);
+            } else {                                    //if the item is on a team, swap targets team
+                item.classList.remove(item.classList[2]);
+                item.classList.add(target.classList[2]);
+            }
         } else {
             item.remove();
         }
@@ -208,7 +220,7 @@ export const moveItem = (item, screenWidth, screenHeight, field) => {
 
     //get the angle to the nearest predator or prey
     let angle = getDirection(item, target);
-    if (closestPredatorDistance < closestPreyDistance) {
+    if (closestPredatorDistance < closestPreyDistance * 0.8) {
         angle += 180;
     }
 
