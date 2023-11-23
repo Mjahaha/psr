@@ -207,6 +207,7 @@ const collisionPredPreyAction = (item, target) => {
 } 
 
 export const moveItem = (item, screenWidth, screenHeight, field) => {
+    console.log(`it's ${item.classList[2]} ${item.classList[1]} ${item.id}'s turn`)
     let distance = data.distance;
     let { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame } = getNearestPredPreySame(item);
     let target;

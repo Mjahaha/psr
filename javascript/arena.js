@@ -8,13 +8,19 @@ export const setUpStartDetails = () => {
     <h1>Welcome to<br>Rock, Paper, Scissors Battle Royale!</h1>
     <form>
         <label for="num">How many of each item should we spawn?</label>
-        <input type="number" id="num" name="num" min="1" max="90" value="20">
+        <input type="number" id="num" name="num" min="1" max="90" value="10">
         <br>
-        <div>
+        <div> 
         <label for="capture">Capture:</label>
         <input type="radio" id="capture" name="captureKill" value="capture" checked>
         <label for="kill">Kill:</label> 
         <input type="radio" id="kill" name="captureKill" value="kill">
+        </div>
+        <div> 
+        <label for="capture">Free for all:</label>
+        <input type="radio" id="FFA" name="gameMode" value="FFA" checked>
+        <label for="kill">Red v Blue:</label> 
+        <input type="radio" id="redVBlue" name="gameMode" value="redVBlue">
         </div>
         <br>
         <input id="startBattle" type="submit" value="Start Battle">

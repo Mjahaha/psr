@@ -5,6 +5,7 @@ export const data = {
     screenHeight: window.innerHeight - 60,
     distance: 1.5,
     captureKill: "capture",
+    gameMode: "FFA",
     allItemsX: []
 }
 

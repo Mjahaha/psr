@@ -8,6 +8,10 @@ body, input {
     display: none;
 }
 
+h1 {
+    z-index: 2;
+}
+
 #startDetails {
     display: flex;
     flex-direction: column;
@@ -15,7 +19,6 @@ body, input {
     justify-content: center;
     height: 80vh;
     text-align: center;
-    z-index: 2;
 }
 
 .item {
