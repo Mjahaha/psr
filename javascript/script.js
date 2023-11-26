@@ -13,12 +13,10 @@ setUpStartDetails();
 
 let runTimestep;
 const runTimestepFunction = () => {
-    let items = field.children;
-    //items[0].style.backgroundColor = 'red';
     runTimestep = setInterval(() => {
         //loops over the moveItem function for each item
-        for (let i = 0; i < items.length; i++) {
-            if (moveItem(items[i], screenWidth, screenHeight, field)) { clearInterval(runTimestep); }
+        for (let i = 0; i < data.allItems.length; i++) {
+            data.allItems[i].moveItem();
         }
     }, 1000/60);
 }
@@ -38,3 +36,8 @@ document.getElementById('startBattle').addEventListener('click', (event) => {
     runTimestepFunction();
 });
 
+document.getElementById('stopBattle').addEventListener('click', (event) => {
+    console.log("stop");
+    event.preventDefault();
+    clearInterval(runTimestep);
+});

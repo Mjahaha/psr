@@ -1,6 +1,6 @@
 import { data } from "./data.js";
 
-const itemClass = class {
+export const itemClass = class {
     constructor(type, team) {
         this.id = data.itemCount;
         data.itemCount++;
@@ -30,29 +30,28 @@ const itemClass = class {
         if (this.type === "rock") { data.allRocks.push(this.id); }
         if (this.type === "paper") { data.allPapers.push(this.id); }
         if (this.type === "scissors") { data.allScissors.push(this.id); }
-        console.log("all rocks array: " + data.allRocks.join(", "));
-        console.log("all papers array: " + data.allPapers.join(", "));
-        console.log("all scissors array: " + data.allScissors.join(", "));
     }
 
     get width() { return this._width; }
     set width(pixelsWide) {
-        this._width = 60;
+        this._width = pixelsWide;
         this.element.style.width = `${this.width}px`;
     }
     get height() { return this._height; }
     set height(pixelsHigh) {
-        this._height = 60;
+        this._height = pixelsHigh;
         this.element.style.height = `${this.height}px`;
     }
 
     get x() { return this._x; }
     set x(newX) {
+        if (typeof newX != 'number') { newX = this._x; }
         this._x = newX;
         this.element.style.left = `${this.x}px`;
     }
     get y() { return this._y; }
     set y(newY) {
+        if (typeof newY != 'number') { newY = this._y; }
         this._y = newY;
         this.element.style.top = `${this.y}px`;
     }
@@ -70,22 +69,17 @@ const itemClass = class {
     set type(newType) { 
         if (this._type === newType) { return; }  
         let newTypeArray;
-        if (newType === "rock") { newTypeArray = data.allRocks; }
-        if (newType === "paper") { newTypeArray = data.allPapers; }
-        if (newType === "scissors") { newTypeArray = data.allScissors; }
-        if (this._type === "rock") {                    //SHOULD THIS BE CHECKING THE NEW TYPE????
-            data.allRocks.splice(data.allRocks.indexOf(this.id), 1);
-            newTypeArray.push(this.id); }
-        if (this._type === "paper") { 
-            data.allPapers.splice(data.allPapers.indexOf(this.id), 1);
-            newTypeArray.push(this.id); }
-        if (this._type === "scissors") { 
-            data.allScissors.splice(data.allScissors.indexOf(this.id), 1); 
-            newTypeArray.push(this.id); }
+        if (newType === "rock") { data.allRocks.push(this.id); }
+        if (newType === "paper") { data.allPapers.push(this.id); }
+        if (newType === "scissors") { data.allScissors.push(this.id); }
+        if (this._type === "rock") { data.allRocks.splice(data.allRocks.indexOf(this.id), 1); }
+        if (this._type === "paper") { data.allPapers.splice(data.allPapers.indexOf(this.id), 1); }
+        if (this._type === "scissors") { data.allScissors.splice(data.allScissors.indexOf(this.id), 1); }
         this.element.classList.remove(this._type);
         this.element.classList.add(newType);
         this._type = newType;
-        this.setPredatorPrey();        
+        this.setPredatorPrey();   
+        this.getNearestPredPreySame();     
      }
 
     get team() { return this._team; }
@@ -139,8 +133,14 @@ const itemClass = class {
     getNearestPredPreySame() {
         let chaseTargetList;
         let sameTargetList;
+        this.nearestPredatorDistance = 100000;
+        this.nearestPreyDistance = 100000;
+        this.nearestSameDistance = 100000;
+        this.nearestPredator = null;
+        this.nearestPrey = null;
+        this.nearestSame = null;
         if(this.team == "unaligned") {
-            console.log('this is an unaligned ' + this.type + ' and its preyTypeArray is ' + this.preyTypeArray.join(', ') + ' and its predatorTypeArray is ' + this.predatorTypeArray.join(', ') + ' and its typeArray is ' + this.typeArray.join(', '));
+            //console.log('this is an unaligned ' + this.type + ' and its preyTypeArray is ' + this.preyTypeArray.join(', ') + ' and its predatorTypeArray is ' + this.predatorTypeArray.join(', ') + ' and its typeArray is ' + this.typeArray.join(', '));
             chaseTargetList = [...this.preyTypeArray, ...this.predatorTypeArray];
             sameTargetList = [...this.typeArray];
         } else {
@@ -148,6 +148,7 @@ const itemClass = class {
                 this.team != ArrayItem.team);
             sameTargetList = [...new Set([...this.type, ...this.team])];
         }
+        if (chaseTargetList.length === 0) { return; }
         
         //loop through predators and prey in chaseTargetList to find closest target
         for (let i = 0; i < chaseTargetList.length; i++) {
@@ -155,15 +156,21 @@ const itemClass = class {
             let targetY = data.allItems[chaseTargetList[i]].y; 
             let distance = Math.sqrt(Math.pow(targetX - this.x, 2) + Math.pow(targetY - this.y, 2));
             let targetClass = data.allItems[chaseTargetList[i]].type;
+            //console.log(`for id ${this.id}, the targetX is ${targetX} and targetY is ${targetY} and distance is ${distance}`);
             
             if (targetClass === this.preyType) {
                 if (distance < this.nearestPredatorDistance) {
                     this.nearestPredatorDistance = distance;
                     this.nearestPredator = chaseTargetList[i];
                 }
-            } else if (distance < this.nearestPreyDistance) {
+            } 
+            else if (targetClass === this.predatorType) {
+                if (distance < this.nearestPreyDistance) {
                     this.nearestPreyDistance = distance;
                     this.nearestPrey = chaseTargetList[i];
+                } 
+            } else { 
+                console.log('no prey or predator found');
             }
         }     
     
@@ -182,9 +189,9 @@ const itemClass = class {
                 }
             }         
         }
-        console.log('nearestPredatorDistance is ' + this.nearestPredatorDistance);
-        console.log('nearestPreyDistance is ' + this.nearestPreyDistance);
-        console.log('nearestSameDistance is ' + this.nearestSameDistance);
+        //console.log('nearestPredatorDistance is ' + this.nearestPredatorDistance);
+        //console.log('nearestPreyDistance is ' + this.nearestPreyDistance);
+        //console.log('nearestSameDistance is ' + this.nearestSameDistance);
     }
 
     getDirection(targetId) {
@@ -234,15 +241,14 @@ const itemClass = class {
             }
         
         //actions for if item is colliding with a same item
-        /*
         if (data.allItems[targetId].type == this.type) {
-            const angle = this.getDirection(closestSame);
-            const moveX = distance * Math.cos(angle * Math.PI / 180);
-            const moveY = distance * Math.sin(angle * Math.PI / 180);
-            this.x -= moveX;
-            this.y -= moveY;
+            const angle = this.getDirection(this.nearestSame);
+            const moveX = this.speed * Math.cos(angle * Math.PI / 180);
+            const moveY = this.speed * Math.sin(angle * Math.PI / 180);
+            this.x += moveX;
+            this.y += moveY;
         }
-        */
+        
 
         //check if there is only one class left
         let classesLeft = 3;
@@ -256,39 +262,32 @@ const itemClass = class {
     }
 
     moveItem() {
-        console.log(`it's ${this.team} ${this.type} ${this.id}'s turn`)
         this.getNearestPredPreySame();
+        console.log(`for ${this.id} ${this.team} ${this.type}, the nearestPredator is ${this.nearestPredator} and the nearestPrey is ${this.nearestPrey} and the nearestSame is ${this.nearestSame}`);
     
         //determine if the item is moving to predator or prey
         let target;
-        let angle = this.getDirection(target);
-        if (this.nearestPredatorDistance < this.nearestPreyDistance  * 0.8) {
-            target = closestPredator; 
-            angle += 180;
+        let angle = 0;
+        if (this.nearestPredatorDistance < this.nearestPreyDistance) {
+            target = this.nearestPredator; 
+            angle += 180 + this.getDirection(target);;
         } 
         else { 
-            target = closestPrey; 
+            target = this.nearestPrey; 
+            angle += this.getDirection(target);
         }
     
         //move the the right distance at the right angle to move toward nearest target
-        let moveX = distance * Math.cos(angle * Math.PI / 180);
-        let moveY = distance * Math.sin(angle * Math.PI / 180);
+        let moveX = this.speed * Math.cos(angle * Math.PI / 180);
+        let moveY = this.speed * Math.sin(angle * Math.PI / 180);
         this.x += moveX;
         this.y += moveY;
     
         //check if item is out of bounds
-        if (newPosX < 0) {
-            newPosX = 0;
-        }
-        if (newPosX > screenWidth) {
-            newPosX = screenWidth;
-        }
-        if (newPosY < 0) {
-            newPosY = 0;
-        }
-        if (newPosY > screenHeight) {
-            newPosY = screenHeight;
-        }
+        if (this.x < 0) { this.x = 0; }
+        if (this.x > data.screenWidth) { this.x = data.screenWidth; }
+        if (this.y < 0) { this.y = 0; }
+        if (this.y > data.screenHeight) { this.y = data.screenHeight; }
 
         //check for collisions
         this.collisionDetection(this.nearestPredator)
@@ -297,6 +296,9 @@ const itemClass = class {
     }
 }
 
+
+//TESTING
+/*
 new itemClass("rock", "unaligned");
 new itemClass("paper", "unaligned");
 new itemClass("scissors", "unaligned");
@@ -318,3 +320,4 @@ for (let i = 0; i < data.allItems.length; i++) {
     }
 }
 
+*/

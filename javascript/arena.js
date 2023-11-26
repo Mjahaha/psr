@@ -1,4 +1,5 @@
 import { data } from "./data.js";
+import { itemClass } from "./itemClass.js";
 
 export const setUpStartDetails = () => {
     //creates a form input labelled 'How many rocks, papers and scissors in this battle:'  
@@ -30,7 +31,7 @@ export const setUpStartDetails = () => {
 
 
 //this function populates the field with 'num' of items
-export const populateFieldClassic = (num) => {
+export const populateFieldClassicOld = (num) => {
     for (let i = 0; i < num; i++) {
         let whichItem = i % 3;
         let itemX = Math.random() * data.screenWidth;
@@ -46,6 +47,22 @@ export const populateFieldClassic = (num) => {
         }
     }
     console.log(data.allItemsX);
+}
+
+export const populateFieldClassic = (num) => {
+    for (let i = 0; i < num; i++) {
+        let whichItem = i % 3;
+        if (whichItem === 0) {
+            new itemClass("rock", "unaligned");
+        }
+        else if (whichItem === 1) {
+            new itemClass("paper", "unaligned");
+        }
+        else {
+            new itemClass("scissors", "unaligned");
+        }
+        console.log(data.allItems[data.allItems.length - 1]);
+    }
 }
 
 //this function populates the field with 'num' of items on each team 
