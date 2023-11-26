@@ -29,7 +29,7 @@ export const setUpStartDetails = () => {
 }
 
 
-
+//this function populates the field with 'num' of items
 export const populateFieldClassic = (num) => {
     for (let i = 0; i < num; i++) {
         let whichItem = i % 3;
@@ -48,6 +48,7 @@ export const populateFieldClassic = (num) => {
     console.log(data.allItemsX);
 }
 
+//this function populates the field with 'num' of items on each team 
 export const populateFieldTeams = (num) => {
     for (let i = 0; i < 2 * num; i++) {
         let whichItem = i % 3;

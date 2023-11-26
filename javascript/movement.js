@@ -1,27 +1,6 @@
 import { replaceItemInSortedBinarySearch, addItemIntoSortedBinarySearch } from './arrayFunctions.js';
 import { data } from './data.js';
 
-const getDirection = (originItem, destinationItem) => {
-    //define object parameters and throw error if not defined
-    try {
-        let destinationObject = getComputedStyle(destinationItem);
-        let originObject = getComputedStyle(originItem);
-    } catch (error) {
-        return;
-    }
-    let destinationObject = getComputedStyle(destinationItem);
-    let originObject = getComputedStyle(originItem); 
-
-    //get coordinates of objects
-    let destinationY = parseFloat(destinationObject.top);
-    let destinationX = parseFloat(destinationObject.left);
-    let originItemY = parseFloat(originObject.top);
-    let originItemX = parseFloat(originObject.left);
-
-    //work out angle between objects
-    let angle = Math.atan2(destinationY - originItemY, destinationX - originItemX) * 180 / Math.PI;
-    return angle;
-}
 
 const getPredatorPrey = (item) => {
     let theClass = item.classList[1];
@@ -108,6 +87,29 @@ const getNearestPredPreySame = (item) => {
     
 
     return { closestPredator, closestPreyDistance, closestPrey, closestPredatorDistance, closestSame };
+}
+
+
+const getDirection = (originItem, destinationItem) => {
+    //define object parameters and throw error if not defined
+    try {
+        let destinationObject = getComputedStyle(destinationItem);
+        let originObject = getComputedStyle(originItem);
+    } catch (error) {
+        return;
+    }
+    let destinationObject = getComputedStyle(destinationItem);
+    let originObject = getComputedStyle(originItem); 
+
+    //get coordinates of objects
+    let destinationY = parseFloat(destinationObject.top);
+    let destinationX = parseFloat(destinationObject.left);
+    let originItemY = parseFloat(originObject.top);
+    let originItemX = parseFloat(originObject.left);
+
+    //work out angle between objects
+    let angle = Math.atan2(destinationY - originItemY, destinationX - originItemX) * 180 / Math.PI;
+    return angle;
 }
 
 const collisionDetection = (item, target) => {
@@ -213,7 +215,7 @@ export const moveItem = (item, screenWidth, screenHeight, field) => {
     let target;
 
     //determine if the item is moving to predator or prey
-    if (closestPredatorDistance < closestPreyDistance) {
+    if (closestPredatorDistance < closestPreyDistance  * 0.8) {
         target = closestPredator;
     } else {
         target = closestPrey;
@@ -221,7 +223,7 @@ export const moveItem = (item, screenWidth, screenHeight, field) => {
 
     //get the angle to the nearest predator or prey
     let angle = getDirection(item, target);
-    if (closestPredatorDistance < closestPreyDistance * 0.8) {
+    if (closestPredatorDistance < closestPreyDistance) {
         angle += 180;
     }
 

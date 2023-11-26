@@ -1,4 +1,5 @@
 export const data = {
+    itemCount: 0,
     field: document.getElementById('theField'),
     startDetails: document.getElementById('startDetails'),
     screenWidth: window.innerWidth - 60,
@@ -6,6 +7,14 @@ export const data = {
     distance: 1.5,
     captureKill: "capture",
     gameMode: "FFA",
+    allItems: [],
+    allPapers: [],
+    allRocks: [],
+    allScissors: [],
+    allUnaligned: [],
+    allBlue: [],
+    allRed: [],
+    allGreen: [],
     allItemsX: []
 }
 
