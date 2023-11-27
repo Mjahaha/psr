@@ -59,9 +59,27 @@ export const itemClass = class {
     get alive() { return this._alive; }
     set alive(newAlive) {
         if (this._alive === newAlive) { return; }
+
+        
+        if (this._type === "rock" && data.allRocks.includes(this.id)) 
+        { data.allRocks.splice(data.allRocks.indexOf(this.id), 1); }
+        if (this._type === "paper" && data.allPapers.includes(this.id)) 
+        { data.allPapers.splice(data.allPapers.indexOf(this.id), 1); }
+        if (this._type === "scissors" && data.allScissors.includes(this.id)) 
+        { data.allScissors.splice(data.allScissors.indexOf(this.id), 1); }
+        if (this._team === "unaligned" && data.allUnaligned.includes(this.id)) 
+        { data.allUnaligned.splice(data.allUnaligned.indexOf(this.id), 1); }
+        if (this._team === "blue" && data.allBlue.includes(this.id)) 
+        { data.allBlue.splice(data.allBlue.indexOf(this.id), 1); }
+        if (this._team === "red" && data.allRed.includes(this.id)) 
+        { data.allRed.splice(data.allRed.indexOf(this.id), 1); }
+        if (this._team === "green" && data.allGreen.includes(this.id)) 
+        { data.allGreen.splice(data.allGreen.indexOf(this.id), 1); }    
+
         this._alive = newAlive;
         if (this._alive === false) { this.element.remove(); }
         if (this._alive === true) { data.field.appendChild(this.element); }
+
     }
 
     get type() { return this._type; }
@@ -223,7 +241,7 @@ export const itemClass = class {
 
     collisionAction(targetId) {
         if (targetId == null) { return false; }
-        console.log(`collision between ${this.id} and ${targetId}`);
+        //console.log(`collision between ${this.id} and ${targetId}`);
         //actions for if item is colliding with a predator or prey item
         if (data.captureKill == "kill" && data.allItems[targetId].type == this.preyType)  //the items wins - kill
             { data.allItems[targetId].alive = false; }
@@ -263,7 +281,7 @@ export const itemClass = class {
 
     moveItem() {
         this.getNearestPredPreySame();
-        console.log(`for ${this.id} ${this.team} ${this.type}, the nearestPredator is ${this.nearestPredator} and the nearestPrey is ${this.nearestPrey} and the nearestSame is ${this.nearestSame}`);
+        //console.log(`for ${this.id} ${this.team} ${this.type}, the nearestPredator is ${this.nearestPredator} and the nearestPrey is ${this.nearestPrey} and the nearestSame is ${this.nearestSame}`);
     
         //determine if the item is moving to predator or prey
         let target;

@@ -18,9 +18,9 @@ export const setUpStartDetails = () => {
         <input type="radio" id="kill" name="captureKill" value="kill">
         </div>
         <div> 
-        <label for="capture">Free for all:</label>
+        <label for="FFA">Free for all:</label>
         <input type="radio" id="FFA" name="gameMode" value="FFA" checked>
-        <label for="kill">Red v Blue:</label> 
+        <label for="redVBlue">Red v Blue:</label> 
         <input type="radio" id="redVBlue" name="gameMode" value="redVBlue">
         </div>
         <br>

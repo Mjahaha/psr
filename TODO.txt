@@ -1,13 +1,10 @@
 General changes 
 - adjust collision to not move away from other item further than edge of the border
-- Remove values now stored in the data module to from being arguments in some functions (e.g. field in moveItem())
-- BUG FIX where target changing from pred to prey if preyDist * .9 > predDist but still goes to closest target 
 
 Arena changes 
-- do CSS of the changes for startup
+- do CSS of the changes for startup 
 
 Teams
-- add unaligned class to items
 - remove targetList into its own function 
 - add a radius of 200px limit to allow running from nearest predator 
 - add other color options for items 
