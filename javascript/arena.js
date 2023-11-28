@@ -9,7 +9,7 @@ export const setUpStartDetails = () => {
     <h1>Welcome to<br>Rock, Paper, Scissors Battle Royale!</h1>
     <form>
         <label for="num">How many of each item should we spawn?</label>
-        <input type="number" id="num" name="num" min="1" max="90" value="10">
+        <input type="number" id="num" name="num" min="1" max="90" value="5">
         <br>
         <div> 
         <label for="capture">Capture:</label>

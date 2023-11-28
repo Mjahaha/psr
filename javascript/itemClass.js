@@ -294,8 +294,12 @@ export const itemClass = class {
             const angle = this.getDirection(this.nearestSame);
             const moveX = this.speed * Math.cos(angle * Math.PI / 180);
             const moveY = this.speed * Math.sin(angle * Math.PI / 180);
-            this.x += moveX;
-            this.y += moveY;
+            if (this.x + moveX < 0) { this.x = 0; } 
+            else if (this.x + moveX > data.screenWidth) { this.x = data.screenWidth; } 
+            else { this.x += moveX; } 
+            if (this.y + moveY < 0) { this.y = 0; } 
+            else if (this.y + moveY > data.screenHeight) { this.y = data.screenHeight; } 
+            else { this.y += moveY; } 
         }
 
         //check if there is only one class left
