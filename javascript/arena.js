@@ -52,21 +52,14 @@ export const populateFieldClassicOld = (num) => {
 export const populateFieldClassic = (num) => {
     for (let i = 0; i < num; i++) {
         let whichItem = i % 3;
-        if (whichItem === 0) {
-            new itemClass("rock", "unaligned");
-        }
-        else if (whichItem === 1) {
-            new itemClass("paper", "unaligned");
-        }
-        else {
-            new itemClass("scissors", "unaligned");
-        }
-        console.log(data.allItems[data.allItems.length - 1]);
+        if (whichItem === 0) { new itemClass("rock", "unaligned"); }
+        else if (whichItem === 1) { new itemClass("paper", "unaligned"); }
+        else { new itemClass("scissors", "unaligned"); }
     }
 }
 
 //this function populates the field with 'num' of items on each team 
-export const populateFieldTeams = (num) => {
+export const populateFieldTeamsOld = (num) => {
     for (let i = 0; i < 2 * num; i++) {
         let whichItem = i % 3;
         let itemX = Math.random() * data.screenWidth * 0.4;
@@ -85,5 +78,21 @@ export const populateFieldTeams = (num) => {
         else {
             data.field.innerHTML += `<div class="item scissors ${teamClass}" id="${i}" style="left:${itemX}px; top:${itemY}px;"></div>`;
         }
+    }
+}
+
+export const populateFieldTeams = (num) => {
+    for (let i = 0; i < 2 * num; i++) {
+        let whichItem = i % 3;
+        let itemX = Math.random() * data.screenWidth * 0.4;
+        let itemY = Math.random() * data.screenHeight;
+        let teamClass = "blue";
+        if (i % 2 === 0) {
+            itemX += data.screenWidth * 0.6;
+            teamClass = "red";
+        }
+        if (whichItem === 0) { new itemClass("scissors", teamClass) }
+        else if (whichItem === 1) { new itemClass("rock", teamClass) }
+        else { new itemClass("paper", teamClass) }
     }
 }

@@ -27,24 +27,12 @@ h1 {
     background-size: contain;
     background-repeat: no-repeat; 
     background-position: center;
+    
 }
 
-.paper {
-    background-image: url("./images/paper.webp");
-    top: 100px;
-    left: 500px;
-}
-.scissors {
-    background-image: url("./images/scissors.webp");
-    top: 100px;
-    left: 100px;
-}
-.rock {
-    background-image: url("./images/rock.webp");
-    top: 400px;
-    left: 200px;
-}
-
+.paper { background-image: url("./images/paper.webp"); }
+.scissors { background-image: url("./images/scissors.webp"); }
+.rock { background-image: url("./images/rock.webp"); }
 .paper.blue { background-image: url("./images/paperBlue.png"); }
 .scissors.blue { background-image: url("./images/scissorsBlue.png"); }
 .rock.blue { background-image: url("./images/rockBlue.png"); }

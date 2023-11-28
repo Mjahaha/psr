@@ -13,7 +13,8 @@ export const itemClass = class {
         this.height = 60;
         this.speed = data.distance;
         this.alive = true;
-        this.setPredatorPrey();
+        this.setArrays();
+        data.allItems.forEach((item) => { item.setArrays(); });
         //the nearest item details
         this.nearestPrey = null;
         this.nearestPreyDistance = 100000;
@@ -24,12 +25,21 @@ export const itemClass = class {
         //the element details
         this.element.classList.add(...["item", this.type, this.team]);
         this.element.id = this.id;
+        this.element.style.transition = `all ${data.timestep}ms linear`
         data.field.appendChild(this.element);
         //the class is added to data.allItems
         data.allItems.push(this);
         if (this.type === "rock") { data.allRocks.push(this.id); }
         if (this.type === "paper") { data.allPapers.push(this.id); }
         if (this.type === "scissors") { data.allScissors.push(this.id); }
+        if (this.team === "unaligned") { data.allUnaligned.push(this.id); }
+        if (this.team === "blue") { data.allBlue.push(this.id); }
+        if (this.team === "red") { data.allRed.push(this.id); }
+        if (this.team === "green") { data.allGreen.push(this.id); }
+        //adds a listener to element on click that does a console log
+        this.element.addEventListener('click', (event) => {
+            console.log(this); console.log(data);
+        });
     }
 
     get width() { return this._width; }
@@ -96,7 +106,7 @@ export const itemClass = class {
         this.element.classList.remove(this._type);
         this.element.classList.add(newType);
         this._type = newType;
-        this.setPredatorPrey();   
+        this.setArrays();   
         this.getNearestPredPreySame();     
      }
 
@@ -126,7 +136,7 @@ export const itemClass = class {
         this._team = newTeam;
     }
 
-    setPredatorPrey() {
+    setArrays() {
         if (this.type == "rock") {
             this.preyType = "scissors";
             this.preyTypeArray = data.allScissors;
@@ -145,7 +155,23 @@ export const itemClass = class {
             this.predatorType = "rock";
             this.predatorTypeArray = data.allRocks;
             this.typeArray = data.allScissors;}
-    }
+        if (this.team === "unaligned") { this.myTeamArray = data.allUnaligned; }
+        if (this.team === "blue") { 
+            this.myTeamArray = data.allBlue; 
+            this.enemyTeam1Array = data.allRed;
+            this.enemyTeam2Array = data.allGreen;    
+        }
+        if (this.team === "red") { 
+            this.myTeamArray = data.allRed; 
+            this.enemyTeam1Array = data.allBlue;
+            this.enemyTeam2Array = data.allGreen;    
+        }
+        if (this.team === "green") { 
+            this.myTeamArray = data.allGreen; 
+            this.enemyTeam1Array = data.allBlue;
+            this.enemyTeam2Array = data.allRed;    
+        }
+    } 
 
     //determines who should be chased and who should be run from
     getNearestPredPreySame() {
@@ -158,15 +184,19 @@ export const itemClass = class {
         this.nearestPrey = null;
         this.nearestSame = null;
         if(this.team == "unaligned") {
-            //console.log('this is an unaligned ' + this.type + ' and its preyTypeArray is ' + this.preyTypeArray.join(', ') + ' and its predatorTypeArray is ' + this.predatorTypeArray.join(', ') + ' and its typeArray is ' + this.typeArray.join(', '));
             chaseTargetList = [...this.preyTypeArray, ...this.predatorTypeArray];
             sameTargetList = [...this.typeArray];
+            //console.log('this is an unaligned ' + this.type + ' and its preyTypeArray is ' + this.preyTypeArray.join(', ') + ' and its predatorTypeArray is ' + this.predatorTypeArray.join(', ') + ' and its typeArray is ' + this.typeArray.join(', '));
         } else {
-            chaseTargetList = [...this.preyTypeArray, ...this.predatorTypeArray].filter((ArrayItem) => 
-                this.team != ArrayItem.team);
-            sameTargetList = [...new Set([...this.type, ...this.team])];
+            chaseTargetList = [...this.preyTypeArray, ...this.predatorTypeArray].filter((ArrayItemId) => 
+                this.team != data.allItems[ArrayItemId].team);
+            if (this.team === "blue") { sameTargetList = [...new Set([...this.typeArray, ...data.allBlue])]; }
+            else if (this.team === "red") { sameTargetList = [...new Set([...this.typeArray, ...data.allRed])]; }
+            else if (this.team === "green") { sameTargetList = [...new Set([...this.typeArray, ...data.allGreen])]; }
+            else {sameTargetList = this.typeArray}
+            //console.log(`this is ${this.id} ${this.team} ${this.type} and its chaseTargetList is ${chaseTargetList.join(', ')} and its sameTargetList is ${sameTargetList.join(', ')}`);
         }
-        if (chaseTargetList.length === 0) { return; }
+        if (!chaseTargetList) { return; }
         
         //loop through predators and prey in chaseTargetList to find closest target
         for (let i = 0; i < chaseTargetList.length; i++) {
@@ -176,13 +206,13 @@ export const itemClass = class {
             let targetClass = data.allItems[chaseTargetList[i]].type;
             //console.log(`for id ${this.id}, the targetX is ${targetX} and targetY is ${targetY} and distance is ${distance}`);
             
-            if (targetClass === this.preyType) {
+            if (targetClass === this.predatorType) {
                 if (distance < this.nearestPredatorDistance) {
                     this.nearestPredatorDistance = distance;
                     this.nearestPredator = chaseTargetList[i];
                 }
             } 
-            else if (targetClass === this.predatorType) {
+            else if (targetClass === this.preyType) {
                 if (distance < this.nearestPreyDistance) {
                     this.nearestPreyDistance = distance;
                     this.nearestPrey = chaseTargetList[i];
@@ -213,6 +243,7 @@ export const itemClass = class {
     }
 
     getDirection(targetId) {
+        if (targetId == null) { return false; }
         let targetX = data.allItems[targetId].x;
         let targetY = data.allItems[targetId].y;
         let angle = Math.atan2(this.y - targetY, this.x - targetX) * 180 / Math.PI;
@@ -221,7 +252,7 @@ export const itemClass = class {
 
     collisionDetection(targetId) {
 
-        if (targetId == null) { return false; }
+        if (targetId == null || targetId == this.id) { return false; }
     
         let targetX = data.allItems[targetId].x;
         let targetY = data.allItems[targetId].y;
@@ -259,23 +290,59 @@ export const itemClass = class {
             }
         
         //actions for if item is colliding with a same item
-        if (data.allItems[targetId].type == this.type) {
+        if (data.allItems[targetId].type == this.type || data.allItems[targetId].team == this.team) {
             const angle = this.getDirection(this.nearestSame);
             const moveX = this.speed * Math.cos(angle * Math.PI / 180);
             const moveY = this.speed * Math.sin(angle * Math.PI / 180);
             this.x += moveX;
             this.y += moveY;
         }
-        
 
         //check if there is only one class left
-        let classesLeft = 3;
-        if (data.allRocks.length === 0) { classesLeft--; }
-        if (data.allPapers.length === 0) { classesLeft--; }
-        if (data.allScissors.length === 0) { classesLeft--; }
-        if (classesLeft <= 1) { 
-            data.startDetails.innerHTML = `<h1>${data.allItems[0].type} wins!</h1>`;
+        if (data.allRocks.length === 0 && data.allPapers.length === 0) { 
+            data.startDetails.innerHTML = `<h1>Scissors wins!</h1>`;
+            data.gameOver = true;
         }
+        if (data.allPapers.length === 0 && data.allScissors.length === 0) { 
+            data.startDetails.innerHTML = `<h1>Rock wins!</h1>`; 
+            data.gameOver = true; 
+        }
+        if (data.allScissors.length === 0 && data.allRocks.length === 0) { 
+            data.startDetails.innerHTML = `<h1>Paper wins!</h1>`; 
+            data.gameOver = true; 
+        }
+        if (data.allBlue.length === 0 && data.allRed.length === 0 && data.allUnaligned.length === 0) { 
+            data.startDetails.innerHTML = `<h1>Green wins!</h1>`; 
+            data.gameOver = true; 
+        }
+        if (data.allRed.length === 0 && data.allGreen.length === 0 && data.allUnaligned.length === 0) { 
+            data.startDetails.innerHTML = `<h1>Blue wins!</h1>`; 
+            data.gameOver = true; 
+        }
+        if (data.allGreen.length === 0 && data.allBlue.length === 0 && data.allUnaligned.length === 0) { 
+            data.startDetails.innerHTML = `<h1>Red wins!</h1>`; 
+            data.gameOver = true; 
+        }
+
+        //Speed up conditions 
+        const teamsArraysAreEmpty = (data.allBlue.length === 0 && data.allRed.length === 0 && data.allGreen.length === 0);
+        if (teamsArraysAreEmpty && data.allRocks.length === 0 && !data.spedUp) {
+            console.log("all rocks are gone");
+            data.distance = data.distance * 2;
+            data.spedUp = true;
+        }
+        if (teamsArraysAreEmpty && data.allScissors.length === 0 && !data.spedUp) {
+            console.log("all scissors are gone");
+            data.distance = data.distance * 2;
+            data.spedUp = true;
+            
+        }
+        if (teamsArraysAreEmpty && data.allPapers.length === 0 && !data.spedUp) {
+            console.log("all papers are gone");
+            data.distance = data.distance * 2;
+            data.spedUp = true;
+        }
+
         return true;
     }
 
@@ -288,11 +355,11 @@ export const itemClass = class {
         let angle = 0;
         if (this.nearestPredatorDistance < this.nearestPreyDistance) {
             target = this.nearestPredator; 
-            angle += 180 + this.getDirection(target);;
+            angle += this.getDirection(target);;
         } 
         else { 
             target = this.nearestPrey; 
-            angle += this.getDirection(target);
+            angle += 180 + this.getDirection(target);
         }
     
         //move the the right distance at the right angle to move toward nearest target
@@ -308,9 +375,9 @@ export const itemClass = class {
         if (this.y > data.screenHeight) { this.y = data.screenHeight; }
 
         //check for collisions
-        this.collisionDetection(this.nearestPredator)
-        this.collisionDetection(this.nearestPrey)
-        this.collisionDetection(this.nearestSame)
+        this.collisionDetection(this.nearestPredator);
+        this.collisionDetection(this.nearestPrey);
+        this.collisionDetection(this.nearestSame);
     }
 }
 

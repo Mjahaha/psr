@@ -16,11 +16,12 @@ const runTimestepFunction = () => {
     runTimestep = setInterval(() => {
         //loops over the moveItem function for each item
         for (let i = 0; i < data.allItems.length; i++) {
+            if (data.gameOver === true) { clearInterval(runTimestep); }
             if (data.allItems[i].alive) {
                 data.allItems[i].moveItem();
             }
         }
-    }, 1000/60);
+    }, data.timestep);
 }
 
 document.getElementById('startBattle').addEventListener('click', (event) => {
