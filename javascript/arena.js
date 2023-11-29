@@ -31,24 +31,6 @@ export const setUpStartDetails = () => {
 
 
 //this function populates the field with 'num' of items
-export const populateFieldClassicOld = (num) => {
-    for (let i = 0; i < num; i++) {
-        let whichItem = i % 3;
-        let itemX = Math.random() * data.screenWidth;
-        let itemY = Math.random() * data.screenHeight;
-        if (whichItem === 0) {
-            data.field.innerHTML += `<div class="item rock unaligned" id="${i}" style="left:${itemX}px; top:${itemY}px;"></div>`;
-        }
-        else if (whichItem === 1) {
-            data.field.innerHTML += `<div class="item paper unaligned" id="${i}" style="left:${itemX}px; top:${itemY}px;"></div>`;
-        }
-        else {
-            data.field.innerHTML += `<div class="item scissors unaligned" id="${i}" style="left:${itemX}px; top:${itemY}px;"></div>`;
-        }
-    }
-    console.log(data.allItemsX);
-}
-
 export const populateFieldClassic = (num) => {
     for (let i = 0; i < num; i++) {
         let whichItem = i % 3;
@@ -59,28 +41,6 @@ export const populateFieldClassic = (num) => {
 }
 
 //this function populates the field with 'num' of items on each team 
-export const populateFieldTeamsOld = (num) => {
-    for (let i = 0; i < 2 * num; i++) {
-        let whichItem = i % 3;
-        let itemX = Math.random() * data.screenWidth * 0.4;
-        let itemY = Math.random() * data.screenHeight;
-        let teamClass = "blue";
-        if (i % 2 === 0) {
-            itemX += data.screenWidth * 0.6;
-            teamClass = "red";
-        }
-        if (whichItem === 0) {
-            data.field.innerHTML += `<div class="item rock ${teamClass}" id="${i}" style="left:${itemX}px; top:${itemY}px;"></div>`;
-        }
-        else if (whichItem === 1) {
-            data.field.innerHTML += `<div class="item paper ${teamClass}" id="${i}" style="left:${itemX}px; top:${itemY}px;"></div>`;
-        }
-        else {
-            data.field.innerHTML += `<div class="item scissors ${teamClass}" id="${i}" style="left:${itemX}px; top:${itemY}px;"></div>`;
-        }
-    }
-}
-
 export const populateFieldTeams = (num) => {
     for (let i = 0; i < 2 * num; i++) {
         let whichItem = i % 3;

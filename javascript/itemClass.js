@@ -7,10 +7,12 @@ export const itemClass = class {
         this.element = document.createElement("div");
         this._type = type;
         this._team = team;
-        this.x = Math.random() * data.screenWidth;
-        this.y = Math.random() * data.screenHeight;
+        this._x = Math.random() * data.screenWidth;
+        this._y = Math.random() * data.screenHeight;
         this.width = 60;
         this.height = 60;
+        this._topLeftX = this.x + this.width / 2;
+        this._topLeftY = this.y + this.height / 2;
         this.speed = data.distance;
         this.alive = true;
         this.setArrays();
@@ -40,6 +42,7 @@ export const itemClass = class {
         this.element.addEventListener('click', (event) => {
             console.log(this); console.log(data);
         });
+        console.log(`this.x is ${this.x} and this.y is ${this.y} and this.topLeftX is ${this.topLeftX} and this.topLeftY is ${this.topLeftY}`)
     }
 
     get width() { return this._width; }
@@ -57,20 +60,45 @@ export const itemClass = class {
     set x(newX) {
         if (typeof newX != 'number') { newX = this._x; }
         this._x = newX;
-        this.element.style.left = `${this.x}px`;
+        this.topLeftX = this.x + this.width / 2;
     }
     get y() { return this._y; }
     set y(newY) {
         if (typeof newY != 'number') { newY = this._y; }
         this._y = newY;
-        this.element.style.top = `${this.y}px`;
+        this.topLeftY = this.y + this.height / 2;
+    }
+    get topLeftX() { return this._topLeftX; }
+    set topLeftX(newTopLeftX) {
+        if (typeof newTopLeftX != 'number') { newTopLeftX = this._topLeftX; }
+        this._topLeftX = newTopLeftX;
+
+        //checks if item is out of bounds
+        if (this.topLeftX < 0) { this._topLeftX = 0; } 
+        if (this.topLeftX > data.screenWidth - this.width) { this._topLeftX = data.screenWidth - this.width; } 
+
+        this._x = this.topLeftX - this.width / 2;
+        this.element.style.left = `${this.topLeftX}px`;
+
+    }
+    get topLeftY() { return this._topLeftY; }
+    set topLeftY(newTopLeftY) {
+        if (typeof newTopLeftY != 'number') { newTopLeftY = this._topLeftY; }
+        this._topLeftY = newTopLeftY;
+
+        //checks if item is out of bounds
+        if (this.topLeftY < 0) { this._topLeftY = 0; }
+        if (this.topLeftY > data.screenHeight - this.height) { this._topLeftY = data.screenHeight - this.height; }
+
+        this._y = this.topLeftY - this.height / 2;
+        this.element.style.top = `${this.topLeftY}px`;
     }
 
     get alive() { return this._alive; }
     set alive(newAlive) {
         if (this._alive === newAlive) { return; }
-
         
+        //remove item from relevant arrays
         if (this._type === "rock" && data.allRocks.includes(this.id)) 
         { data.allRocks.splice(data.allRocks.indexOf(this.id), 1); }
         if (this._type === "paper" && data.allPapers.includes(this.id)) 
@@ -260,10 +288,10 @@ export const itemClass = class {
         let targetHeight = data.allItems[targetId].height;
     
         //check if item is colliding with target
-        if (this.x < targetX + targetWidth &&
-            this.x + this.width > targetX &&
-            this.y < targetY + targetHeight &&
-            this.y + this.height > targetY) { 
+        if (this.topLeftX < targetX + targetWidth &&
+            this.topLeftX + this.width > targetX &&
+            this.topLeftY < targetY + targetHeight &&
+            this.topLeftY + this.height > targetY) { 
                 this.collisionAction(targetId);
                 return true; 
             }
@@ -294,12 +322,8 @@ export const itemClass = class {
             const angle = this.getDirection(this.nearestSame);
             const moveX = this.speed * Math.cos(angle * Math.PI / 180);
             const moveY = this.speed * Math.sin(angle * Math.PI / 180);
-            if (this.x + moveX < 0) { this.x = 0; } 
-            else if (this.x + moveX > data.screenWidth) { this.x = data.screenWidth; } 
-            else { this.x += moveX; } 
-            if (this.y + moveY < 0) { this.y = 0; } 
-            else if (this.y + moveY > data.screenHeight) { this.y = data.screenHeight; } 
-            else { this.y += moveY; } 
+            this.topLeftX += moveX;
+            this.topLeftY += moveY;
         }
 
         //check if there is only one class left
@@ -371,12 +395,6 @@ export const itemClass = class {
         let moveY = this.speed * Math.sin(angle * Math.PI / 180);
         this.x += moveX;
         this.y += moveY;
-    
-        //check if item is out of bounds
-        if (this.x < 0) { this.x = 0; }
-        if (this.x > data.screenWidth) { this.x = data.screenWidth; }
-        if (this.y < 0) { this.y = 0; }
-        if (this.y > data.screenHeight) { this.y = data.screenHeight; }
 
         //check for collisions
         this.collisionDetection(this.nearestPredator);

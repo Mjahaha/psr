@@ -1,14 +1,18 @@
 General changes 
-- adjust collision to not move away from other item further than edge of the border
+- background? 
+- death pics 
+
+Types of guys
+- add an exemption to taking turns for when you have an animation
+- big eater, gets 10px bigger when he captures, if he gets hit, knocks the other item away 100px and looses a sized
+- mage, fires bullets like on that hyperplex video
+- necromancer?
 
 Arena changes 
-- do CSS of the changes for startup 
+- make a menu screen
 
 Teams
-- remove targetList into its own function 
-- add a radius of 200px limit to allow running from nearest predator 
-- add other color options for items 
-- make the same colour items not be predators or prey but be in the same list 
+
 
 Efficiency changes
 Using binary search over sorted arrays
