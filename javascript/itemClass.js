@@ -11,8 +11,8 @@ export const itemClass = class {
         this._y = Math.random() * data.screenHeight;
         this.width = 60;
         this.height = 60;
-        this._topLeftX = this.x + this.width / 2;
-        this._topLeftY = this.y + this.height / 2;
+        this.topLeftX = this.x + this.width / 2;
+        this.topLeftY = this.y + this.height / 2;
         this.speed = data.distance;
         this.alive = true;
         this.setArrays();
@@ -27,8 +27,8 @@ export const itemClass = class {
         //the element details
         this.element.classList.add(...["item", this.type, this.team]);
         this.element.id = this.id;
-        this.element.style.transition = `all ${data.timestep}ms linear`
-        data.field.appendChild(this.element);
+        this.element.style.transition = `all ${data.timestep}ms linear`;
+        //data.field.appendChild(this.element);
         //the class is added to data.allItems
         data.allItems.push(this);
         if (this.type === "rock") { data.allRocks.push(this.id); }
@@ -60,13 +60,13 @@ export const itemClass = class {
     set x(newX) {
         if (typeof newX != 'number') { newX = this._x; }
         this._x = newX;
-        this.topLeftX = this.x + this.width / 2;
+        this.topLeftX = this.x - this.width / 2;
     }
     get y() { return this._y; }
     set y(newY) {
         if (typeof newY != 'number') { newY = this._y; }
         this._y = newY;
-        this.topLeftY = this.y + this.height / 2;
+        this.topLeftY = this.y - this.height / 2;
     }
     get topLeftX() { return this._topLeftX; }
     set topLeftX(newTopLeftX) {
@@ -77,7 +77,7 @@ export const itemClass = class {
         if (this.topLeftX < 0) { this._topLeftX = 0; } 
         if (this.topLeftX > data.screenWidth - this.width) { this._topLeftX = data.screenWidth - this.width; } 
 
-        this._x = this.topLeftX - this.width / 2;
+        this._x = this.topLeftX + this.width / 2;
         this.element.style.left = `${this.topLeftX}px`;
 
     }
@@ -90,7 +90,7 @@ export const itemClass = class {
         if (this.topLeftY < 0) { this._topLeftY = 0; }
         if (this.topLeftY > data.screenHeight - this.height) { this._topLeftY = data.screenHeight - this.height; }
 
-        this._y = this.topLeftY - this.height / 2;
+        this._y = this.topLeftY + this.height / 2;
         this.element.style.top = `${this.topLeftY}px`;
     }
 
@@ -260,8 +260,8 @@ export const itemClass = class {
             if (sameTargetList[i] === this.id) { continue; }
             if (targetClass === this.type) {
                 if (distance < this.nearestSameDistance) {
-                    this.nearestSameDistance = distance;
-                    this.nearestSame = sameTargetList[i];
+                    this.nearestSameDistance = distance; 
+                    this.nearestSame = sameTargetList[i]; 
                 }
             }         
         }

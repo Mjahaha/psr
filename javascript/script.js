@@ -1,12 +1,8 @@
 import { data } from "./data.js";
 import { addItemIntoSortedBinarySearch } from "./arrayFunctions.js";
 
-const field = data.field;
-const screenWidth = data.screenWidth;
-const screenHeight = data.screenHeight;
 
-import { moveItem } from "./movement.js";
-import { setUpStartDetails, populateFieldClassic, populateFieldTeams } from "./arena.js";
+import { setUpStartDetails, populateFieldClassic, populateFieldTeams } from "./menu.js";
 
 setUpStartDetails();
 //populateField(30);
