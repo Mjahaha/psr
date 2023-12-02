@@ -42,7 +42,6 @@ export const itemClass = class {
         this.element.addEventListener('click', (event) => {
             console.log(this); console.log(data);
         });
-        console.log(`this.x is ${this.x} and this.y is ${this.y} and this.topLeftX is ${this.topLeftX} and this.topLeftY is ${this.topLeftY}`)
     }
 
     get width() { return this._width; }
