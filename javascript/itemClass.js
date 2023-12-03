@@ -41,6 +41,15 @@ export const itemClass = class {
         //adds a listener to element on click that does a console log
         this.element.addEventListener('click', (event) => {
             console.log(this); console.log(data);
+            const dot = document.createElement('div');
+            dot.style.position = "absolute";
+            dot.style.top = `${this.y}px`;
+            dot.style.left = `${this.x}px`;
+            dot.style.width = `3px`;
+            dot.style.height = `3px`;
+            dot.style.backgroundColor = "red";
+            dot.style.zIndex = 9;
+            document.body.appendChild(dot);
         });
     }
 
@@ -281,8 +290,8 @@ export const itemClass = class {
 
         if (targetId == null || targetId == this.id) { return false; }
     
-        let targetX = data.allItems[targetId].x;
-        let targetY = data.allItems[targetId].y;
+        let targetX = data.allItems[targetId].topLeftX;
+        let targetY = data.allItems[targetId].topLeftY;
         let targetWidth = data.allItems[targetId].width;
         let targetHeight = data.allItems[targetId].height;
     

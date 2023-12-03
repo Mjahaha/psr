@@ -3,7 +3,7 @@ import { data } from "./data.js";
 
 // Get the canvas element
 let element = document.createElement('div');
-populateFieldClassic(1);
+populateFieldClassic(10);
 
 // Variables to store the starting position and radius
 let startClickX, startClickY, radius;
