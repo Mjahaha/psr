@@ -3,6 +3,7 @@
 body, input {
     background-color: rgb(255, 255, 255);
     font-family: 'Luckiest Guy', cursive;
+    margin: 0px;
 }
 #initialDetails {
     display: none;
@@ -24,6 +25,37 @@ h1 {
 .item {
     position: absolute;
     background-color: white;
+    background-size: contain;
+    background-repeat: no-repeat; 
+    background-position: center;
+    
+}
+
+/* Details of the item display box */
+.itemDisplayContainer {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center; 
+    align-items: flex-start; 
+    max-height: 200px;
+    width: auto;
+}
+
+.itemDisplayBox {
+    display: flex;
+    justify-content: space-between; 
+    height: 50px;
+    min-width: 40vw;
+    margin: 10px;
+    padding: 5px;
+    
+}
+
+.itemDisplay {
+    height: 100%;
+    width: 100%;
     background-size: contain;
     background-repeat: no-repeat; 
     background-position: center;

@@ -30,6 +30,16 @@ function handleMouseDown(event) {
     prePushedItemInfo = data.allItems.map(item => ({ ...item }));
     //prePushedItemInfo = JSON.parse(JSON.stringify(data.allItems));
 
+    const dot = document.createElement('div');
+    dot.style.position = "absolute";
+    dot.style.top = `${event.clientY}px`;
+    dot.style.left = `${event.clientX}px`;
+    dot.style.width = `3px`;
+    dot.style.height = `3px`;
+    dot.style.backgroundColor = "red";
+    dot.style.zIndex = 9;
+    document.body.appendChild(dot);
+
     console.log(`cycle started.`)
     document.body.addEventListener('mousemove', handleMouseMove);
     lagPreventionStopper = setInterval(() => {
@@ -43,12 +53,17 @@ function handleMouseMove(event) {
   if (!startClickX && !startClickY) { return; } // Exit if the mouse hasn't been pressed down
   mouseMoveCounter++;
 
+  // Calculate the distance from the starting position to the current mouse position
+  const dx = event.clientX - startClickX;
+  const dy = event.clientY - startClickY;
+  radius = Math.sqrt(dx * dx + dy * dy);
+
   // Sets the properties of the circle element
-  element.style.position = "absolute"; // Set the element position to absolute
+  element.style.height = `${radius * 2}px`;      // Set the height of the circle
+  element.style.width = `${radius * 2}px`;       // Set the width of the circle
   element.style.top = `${startClickY - radius}px`;     // Set the top edge of the circle
   element.style.left = `${startClickX - radius}px`;    // Set the left edge of the circle
-  element.style.width = `${radius * 2}px`;       // Set the width of the circle
-  element.style.height = `${radius * 2}px`;      // Set the height of the circle
+  element.style.position = "absolute"; // Set the element position to absolute
   element.style.border = "5px solid black"; // Set a thick border with black color
   element.style.borderRadius = "50%";  // This makes it a circle
   element.style.boxSizing = "border-box"; // This ensures the border is included in the width/height
@@ -57,10 +72,7 @@ function handleMouseMove(event) {
   if (data.lagPreventionStopper) { return; }
   data.lagPreventionStopper = true;
 
-  // Calculate the distance from the starting position to the current mouse position
-  const dx = event.clientX - startClickX;
-  const dy = event.clientY - startClickY;
-  radius = Math.sqrt(dx * dx + dy * dy);
+
 
   //checks each item to see if it was originally within the radius of the circle, and then moves it to circle edge
   for (let i = 0; i < data.allItems.length; i++) {
