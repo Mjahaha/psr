@@ -22,14 +22,7 @@ h1 {
     text-align: center;
 }
 
-.item {
-    position: absolute;
-    background-color: white;
-    background-size: contain;
-    background-repeat: no-repeat; 
-    background-position: center;
-    
-}
+
 
 /* Details of the item display box */
 .itemDisplayContainer {
@@ -59,7 +52,37 @@ h1 {
     background-size: contain;
     background-repeat: no-repeat; 
     background-position: center;
-    
+}
+
+/* details of terrain objects */
+
+.terrain {
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat; 
+    background-position: center; 
+    border: 2px solid darkblue;
+    top: 400px;
+    left: 600px;
+    width: 200px;
+    height: 200px;
+}
+
+.round {
+    border-radius: 50%;
+}
+
+
+/* details of the items on the field */
+
+.item {
+    position: absolute;
+    background-color: white;
+    background-size: contain;
+    background-repeat: no-repeat; 
+    background-position: center; 
+    height: 60px;
+    width: 60px;
 }
 
 .paper { background-image: url("./images/paper.webp"); }

@@ -17,6 +17,7 @@ const myData = class {
         this.allBlue = [];
         this.allRed = [];
         this.allGreen = [];
+        this.allTerrain = [];
         this.distance = 8;
         this.spedUp = false;
     }
@@ -36,25 +37,3 @@ const myData = class {
 
 export const data = new myData();
 
-/*
-export const data = {
-    itemCount: 0,
-    field: document.getElementById('theField'),
-    startDetails: document.getElementById('startDetails'),
-    screenWidth: window.innerWidth - 60,
-    screenHeight: window.innerHeight - 60,
-    distance: 15,
-    timestep: 100,
-    captureKill: "capture",
-    gameMode: "FFA",
-    gameOver: false,
-    allItems: [],
-    allPapers: [],
-    allRocks: [],
-    allScissors: [],
-    allUnaligned: [],
-    allBlue: [],
-    allRed: [],
-    allGreen: [],
-}
-*/

@@ -1,14 +1,16 @@
 import { data } from "./data.js";
 
 export const itemClass = class {
-    constructor(type, team) {
+    constructor(type, team, specifics) {
         this.id = data.itemCount;
         data.itemCount++;
         this.element = document.createElement("div");
         this._type = type;
-        this._team = team;
-        this._x = Math.random() * data.screenWidth;
-        this._y = Math.random() * data.screenHeight;
+        this._team = team || "unaligned";
+        this.specifics = specifics;
+        this._x = (specifics && specifics.x) || Math.random() * data.screenWidth; 
+        this._y = (specifics && specifics.y) || Math.random() * data.screenHeight;
+        this._alive = true;
         this.width = 60;
         this.height = 60;
         this.topLeftX = this.x + this.width / 2;
@@ -28,7 +30,6 @@ export const itemClass = class {
         this.element.classList.add(...["item", this.type, this.team]);
         this.element.id = this.id;
         this.element.style.transition = `all ${data.timestep}ms linear`;
-        //data.field.appendChild(this.element);
         //the class is added to data.allItems
         data.allItems.push(this);
         if (this.type === "rock") { data.allRocks.push(this.id); }
@@ -41,16 +42,10 @@ export const itemClass = class {
         //adds a listener to element on click that does a console log
         this.element.addEventListener('click', (event) => {
             console.log(this); console.log(data);
-            const dot = document.createElement('div');
-            dot.style.position = "absolute";
-            dot.style.top = `${this.y}px`;
-            dot.style.left = `${this.x}px`;
-            dot.style.width = `3px`;
-            dot.style.height = `3px`;
-            dot.style.backgroundColor = "red";
-            dot.style.zIndex = 9;
-            document.body.appendChild(dot);
+            this.pathing();
+            this.createRedDotForTesting(this.x, this.y);
         });
+        data.field.appendChild(this.element);
     }
 
     get width() { return this._width; }
@@ -172,6 +167,18 @@ export const itemClass = class {
         this._team = newTeam;
     }
 
+    createRedDotForTesting(redDotX, redDotY) {
+        const dot = document.createElement('div');
+        dot.style.position = "absolute";
+        dot.style.left = `${redDotX}px`;
+        dot.style.top = `${redDotY}px`;
+        dot.style.width = `3px`;
+        dot.style.height = `3px`;
+        dot.style.backgroundColor = "red";
+        dot.style.zIndex = 9;
+        document.body.appendChild(dot);
+    }
+
     setArrays() {
         if (this.type == "rock") {
             this.preyType = "scissors";
@@ -278,10 +285,14 @@ export const itemClass = class {
         //console.log('nearestSameDistance is ' + this.nearestSameDistance);
     }
 
-    getDirection(targetId) {
+    getDirection(targetId) {    //returns the angle to travel. Taking an ID for items, or a JSON with an x and y property
         if (targetId == null) { return false; }
         let targetX = data.allItems[targetId].x;
         let targetY = data.allItems[targetId].y;
+        if (typeof targetId =="object") {
+            targetX = targetId.x;
+            targetY = targetId.y;
+        }
         let angle = Math.atan2(this.y - targetY, this.x - targetX) * 180 / Math.PI;
         return angle;
     }
@@ -380,6 +391,31 @@ export const itemClass = class {
         }
 
         return true;
+    }
+
+    pathing() {
+        this.getNearestPredPreySame();
+        let thingToPathTo = this.nearestPrey;
+        let distanceThingIsAway = this.nearestPreyDistance;
+        const visualisePathing = (pathTarget, distanceAway) => {
+            let angle = this.getDirection(pathTarget);
+            angle += 180;
+            let distanceToTravelEachStep = this.width;
+            const distanceToTravelEachStepX = distanceToTravelEachStep * Math.cos(angle * Math.PI / 180);
+            const distanceToTravelEachStepY = distanceToTravelEachStep * Math.sin(angle * Math.PI / 180);
+            let distanceTravelled = 0;
+            let currentX = this.x;
+            let currentY = this.y;
+
+            //a loop that creates dots all the way to the nearest predator
+            while (distanceTravelled < distanceAway) {
+                currentX += distanceToTravelEachStepX;
+                currentY += distanceToTravelEachStepY;
+                this.createRedDotForTesting(currentX, currentY);
+                distanceTravelled = Math.sqrt(Math.pow(currentX - this.x, 2) + Math.pow(currentY - this.y, 2));
+            }
+        }
+        visualisePathing(thingToPathTo, distanceThingIsAway);
     }
 
     moveItem() {

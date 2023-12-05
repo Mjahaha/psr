@@ -1,9 +1,17 @@
 import { populateFieldClassic } from "./menu.js";
 import { data } from "./data.js";
+import { itemClass } from "./itemClass.js";
+import { terrainClass } from "./terrainClass.js";
 
 // Get the canvas element
 let element = document.createElement('div');
-populateFieldClassic(10);
+//populateFieldClassic(1);
+new itemClass("rock", "unaligned", {x: 300, y: 450});
+new itemClass("paper", "unaligned", {x: 900, y: 450});
+new itemClass("scissors", "unaligned", {x: 900, y: 380});
+new terrainClass("circle", 100, {x: 650, y: 475});
+
+
 
 // Variables to store the starting position and radius
 let startClickX, startClickY, radius;
@@ -22,30 +30,30 @@ function handleMouseDown(event) {
     // Store the starting position
     startClickX = event.clientX;
     startClickY = event.clientY;
+
+    // Sets the properties of the circle element
     document.body.appendChild(element);
     element.style.pointerEvents = "none"; 
-    //creates a duplicate of the data.allItems array to remember coords
-    let tempObject = {};
-    
+    element.style.height = `$1px`;      // Set the height of the circle
+    element.style.width = `1px`;       // Set the width of the circle
+    element.style.top = `${startClickY}px`;     // Set the top edge of the circle
+    element.style.left = `${startClickX}px`;    // Set the left edge of the circle
+    element.style.position = "absolute"; // Set the element position to absolute
+    element.style.border = "5px solid black"; // Set a thick border with black color
+    element.style.borderRadius = "50%";  // This makes it a circle
+    element.style.boxSizing = "border-box"; // This ensures the border is included in the width/height
+
+    //creates a duplicate of the data.allItems array to remember coords    
     prePushedItemInfo = data.allItems.map(item => ({ ...item }));
-    //prePushedItemInfo = JSON.parse(JSON.stringify(data.allItems));
-
-    const dot = document.createElement('div');
-    dot.style.position = "absolute";
-    dot.style.top = `${event.clientY}px`;
-    dot.style.left = `${event.clientX}px`;
-    dot.style.width = `3px`;
-    dot.style.height = `3px`;
-    dot.style.backgroundColor = "red";
-    dot.style.zIndex = 9;
-    document.body.appendChild(dot);
-
     console.log(`cycle started.`)
     document.body.addEventListener('mousemove', handleMouseMove);
     lagPreventionStopper = setInterval(() => {
       data.lagPreventionStopper = false;
-      
     }, 1000/60);
+    //removes transition from all items
+    data.allItems.forEach(item => {
+      item.element.style.transition = "none";
+    });
   }
   
 
@@ -68,15 +76,12 @@ function handleMouseMove(event) {
   element.style.borderRadius = "50%";  // This makes it a circle
   element.style.boxSizing = "border-box"; // This ensures the border is included in the width/height
 
-
+  //prevents lag by only running the code once every 1/60 of a second
   if (data.lagPreventionStopper) { return; }
   data.lagPreventionStopper = true;
 
-
-
   //checks each item to see if it was originally within the radius of the circle, and then moves it to circle edge
   for (let i = 0; i < data.allItems.length; i++) {
-    data.allItems[i].element.style.transition = "none";  
     const originalItem = prePushedItemInfo[i];
     if (!originalItem._alive) { continue; } 
 
@@ -86,6 +91,7 @@ function handleMouseMove(event) {
     const originalY = thisItemWithOriginalState._y;
     let itemOriginalDistanceFromOrigin = Math.sqrt((originalX - startClickX) ** 2 + (originalY - startClickY) ** 2);
 
+    //if the item is within the radius of the circle, move it to the edge of the circle
     if (radius < itemOriginalDistanceFromOrigin) { 
       data.allItems[i].x = originalX;
       data.allItems[i].y = originalY;
@@ -95,7 +101,6 @@ function handleMouseMove(event) {
     data.allItems[i].x = startClickX + radius * Math.cos(angle);
     data.allItems[i].y = startClickY + radius * Math.sin(angle);
     continue;
-
   }
 }
 
@@ -107,7 +112,10 @@ function handleMouseUp() {
   prePushedItemInfo = []; 
   clearInterval(lagPreventionStopper); 
   document.body.removeChild(element); 
-  element = document.createElement('div'); 
   console.log(`cycle complete`); 
   document.body.removeEventListener('mousemove', handleMouseMove);
+  //adds transition back to all items
+  data.allItems.forEach(item => {
+    item.element.style.transition = `all ${data.timestep}ms linear`;
+  });
 }
