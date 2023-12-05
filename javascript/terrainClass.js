@@ -21,6 +21,17 @@ export const terrainClass = class {
         this.element.style.border = "3px solid darkBlue";
         data.allTerrain.push(this);
         data.field.appendChild(this.element);
+        this.center = document.createElement('div');
+        this.center.classList.add(['terrain', type]);
+        this.center.style.height = `$4px`;
+        this.center.style.width = `$4px`;
+        this.center.style.top = `${this._y}px`;
+        this.center.style.left = `${this._x}px`;
+        this.center.style.position = "absolute";
+        this.element.style.borderRadius = "50%";
+        this.center.style.border = "2px solid darkBlue";
+        this.center.style.zIndex = "4";
+        data.field.appendChild(this.center);
     }
     get x() {
         return this._x;

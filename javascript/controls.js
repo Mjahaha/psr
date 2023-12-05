@@ -6,12 +6,18 @@ import { terrainClass } from "./terrainClass.js";
 // Get the canvas element
 let element = document.createElement('div');
 //populateFieldClassic(1);
+/*
 new itemClass("rock", "unaligned", {x: 300, y: 490});
 new itemClass("rock", "unaligned", {x: 300, y: 250});
 new itemClass("paper", "unaligned", {x: 900, y: 450});
 new itemClass("scissors", "unaligned", {x: 990, y: 450});
 new terrainClass("circle", 100, {x: 650, y: 475});
-
+*/
+new itemClass("rock", "unaligned", {y: 300, x: 490});
+new itemClass("rock", "unaligned", {y: 300, x: 250});
+new itemClass("paper", "unaligned", {y: 900, x: 450});
+new itemClass("scissors", "unaligned", {y: 990, x: 450});
+new terrainClass("circle", 100, {y: 650, x: 475});
 
 
 // Variables to store the starting position and radius
