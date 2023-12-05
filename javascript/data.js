@@ -1,6 +1,7 @@
 const myData = class {
     constructor() {
         this.itemCount = 0;
+        this.terrainCount = 0;
         this.field = document.getElementById('theField');
         this.startDetails = document.getElementById('startDetails');
         this.screenWidth = window.innerWidth;

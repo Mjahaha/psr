@@ -2,6 +2,8 @@ import { data } from "./data.js";
 
 export const terrainClass = class {
     constructor(type, radius, specifics) {
+        this.id = data.terrainCount;
+        data.terrainCount++;
         this.type = type;
         this.radius = radius;
         this._x = (specifics && specifics.x) || Math.random() * (data.screenWidth - this.radius * 2); 
