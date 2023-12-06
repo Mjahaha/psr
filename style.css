@@ -22,7 +22,31 @@ h1 {
     text-align: center;
 }
 
+/* the sideBar is a nav bar that sits on the right side of the screen and has a number of icons */
+#sideBar {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    height: 100vh;
+    width: 100px;
+    background-color: rgb(227, 227, 227);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 10;
+    border-left: 3px;
+    border-right: 0px;
+    border-top: 0px;
+    border-bottom: 0px;
+    border-color: black;
+    border-style: solid;
+}
 
+#stopBattle {
+    z-index: 5;
+    display: none;
+}
 
 /* Details of the item display box */
 .itemDisplayContainer {

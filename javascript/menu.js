@@ -83,12 +83,50 @@ export const setUpStartDetails = () => {
 
 //this function populates the field with 'num' of items
 export const populateFieldClassic = (num) => {
-    for (let i = 0; i < num; i++) {
-        let whichItem = i % 3;
-        if (whichItem === 0) { new itemClass("rock", "unaligned"); }
-        else if (whichItem === 1) { new itemClass("paper", "unaligned"); }
-        else { new itemClass("scissors", "unaligned"); }
-    }
+    //code to make the items come from the mouse
+    let isMouseInWindow = true;
+    let mouseCoordsX, mouseCoordsY;
+    const findMousePosition = document.addEventListener('mousemove', (event) => {
+        isMouseInWindow = true;
+        mouseCoordsX = event.clientX;
+        mouseCoordsY = event.clientY;
+    });
+    const findIfMouseExits = document.addEventListener('mouseout', () => {
+        isMouseInWindow = false;
+        mouseCoordsX = data.screenWidth / 2;
+        mouseCoordsY = data.screenHeight / 2;
+    });
+    
+    //loop that creates 'num' of items
+    let i = 0;
+    const createItemsOnField = setInterval(() => {      //using set interval to create items to have a transition effect
+        let actualItemX = Math.random() * data.screenWidth; 
+        let actualItemY = Math.random() * data.screenHeight;
+        if (data.allItems.length > 0) {     //moving the coords of the previous item after timer, otherwise it was moving before item entered the DOM so no transition
+            data.allItems[data.allItems.length - 1].x = actualItemX; 
+            data.allItems[data.allItems.length - 1].y = actualItemY; 
+        }
+
+        if (i >= num) { clearInterval(createItemsOnField); }    //exits loop when 'num' of items have been created
+
+        let specificsForItem = { 
+            x: mouseCoordsX || data.screenWidth / 2, 
+            y: mouseCoordsY || data.screenHeight / 2,
+        }
+        let whichItemType = i % 3;
+        let newItem;
+        if (whichItemType === 0) { newItem = new itemClass("rock", "unaligned", specificsForItem); }
+        else if (whichItemType === 1) { newItem = new itemClass("paper", "unaligned", specificsForItem); }
+        else { newItem = new itemClass("scissors", "unaligned", specificsForItem); }
+        console.log(`the start coords are ${actualItemX}, ${actualItemY} and the mouse is at ${mouseCoordsX}, ${mouseCoordsY}`)
+        
+        i++;
+    }, 10); 
+
+    //removes listeners for function
+    document.removeEventListener('mousemove', findMousePosition);
+    document.removeEventListener('mouseout', findIfMouseExits);
+
 }
 
 //this function populates the field with 'num' of items on each team 

@@ -1,6 +1,9 @@
 General changes 
-- put draw circle controls into the one function
 - background? 
+- add a HUD for the game that
+  a) shows how many items of each type are in play
+  b) gives the user controls to set up field initially
+- add move mousemove listener to data class and then update drawCircle and populateField to reflect this new listener 
 - death pics 
 
 Types of guys

@@ -27,6 +27,7 @@ document.getElementById('startBattle').addEventListener('click', (event) => {
     data.gameMode = document.querySelector('input[name="gameMode"]:checked').value;
     num = num * 3;
     data.startDetails.innerHTML = "";
+    document.getElementById('stopBattle').style.display = "block";
     if (data.gameMode === "FFA") {
         populateFieldClassic(num);
     } else {

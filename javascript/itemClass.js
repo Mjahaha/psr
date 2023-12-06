@@ -288,11 +288,11 @@ export const itemClass = class {
 
     getDirection(target) {    //returns the angle to travel. Taking an ID for items, or a JSON with an x and y property
         let targetX, targetY;
-        if (typeof target =="object") {
+        if (typeof target == "object" || typeof target == "function") {
             targetX = target.x;
             targetY = target.y;
         } else {
-        if (target == null) { return false; }
+            if (target == null) { return false; }
             targetX = data.allItems[target].x;
             targetY = data.allItems[target].y;
         }
