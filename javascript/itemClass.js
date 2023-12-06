@@ -167,13 +167,14 @@ export const itemClass = class {
         this._team = newTeam;
     }
 
-    createDotForTesting(redDotX, redDotY, colour) {
+    createDotForTesting(redDotX, redDotY, colour, weight) {
         const dot = document.createElement('div');
         dot.style.position = "absolute";
         dot.style.left = `${redDotX}px`;
         dot.style.top = `${redDotY}px`;
-        dot.style.width = `3px`;
-        dot.style.height = `3px`;
+        let size = weight == null ? 3 : weight;
+        dot.style.width = `${size}px`;
+        dot.style.height = `${size}px`;
         dot.style.backgroundColor = colour || "red";
         dot.style.zIndex = 9;
         document.body.appendChild(dot);
@@ -404,7 +405,7 @@ export const itemClass = class {
         const visualisePathing = (pathTarget, distanceAway, startCoordObj) => {
             let angle = this.getDirection(pathTarget);
             angle += 180;
-            let distanceToTravelEachStep = this.width;
+            let distanceToTravelEachStep = 20;
             const distanceToTravelEachStepX = distanceToTravelEachStep * Math.cos(angle * Math.PI / 180);
             const distanceToTravelEachStepY = distanceToTravelEachStep * Math.sin(angle * Math.PI / 180);
             let distanceTravelled = 0;
@@ -461,31 +462,41 @@ export const itemClass = class {
 
             //vars for drawing dots to show what way we are going
             const shortest = leftAngleDiff < rightAngleDiff ? "left" : "right";
-            shortest == "left" ? this.createDotForTesting(leftX, leftY, "green") : this.createDotForTesting(rightX, rightY, "orange");
+            shortest == "left" ? this.createDotForTesting(leftX, leftY, "green", 10) : this.createDotForTesting(rightX, rightY, "orange", 10);
 
             //checks which angle is smaller which represents the shorter path around the terrain
             const returnVal = leftAngleDiff < rightAngleDiff ? {x: leftX, y: leftY} : {x: rightX, y: rightY};
             return returnVal; 
         }
 
-        const findClosestTerrainInTheWay = () => {
+        const findClosestTerrainInTheWay = (targetToCheck) => {
             let closestIntersectingTerrainId = null;
             let distanceToClosestIntersectingTerrain = 100000;
             data.allTerrain.forEach(terrain => {
                 const thisDistance = Math.sqrt(Math.pow(terrain.x - this.x, 2) + Math.pow(terrain.y - this.y, 2));
-                const intersects = doesStraightLinePathIntersectTerrain(targetToPathTo, terrain);
+                const intersects = doesStraightLinePathIntersectTerrain(targetToCheck, terrain);
                 if (intersects && thisDistance < distanceToClosestIntersectingTerrain) {
                     closestIntersectingTerrainId = terrain.id;
                     distanceToClosestIntersectingTerrain = thisDistance;
                 }
             });
+            if (closestIntersectingTerrainId == null) { return false; }
             return {terrain : data.allTerrain[closestIntersectingTerrainId], distance : distanceToClosestIntersectingTerrain};
         }
-
-        shortestPathAroundTerrain(data.allTerrain[0]);
         
+        const executePathingVisual = (targetToPathTo, startCoords) => {
+            let closestTerrain = findClosestTerrainInTheWay(targetToPathTo);
+            let nextPoint = shortestPathAroundTerrain(closestTerrain.terrain);
+            startCoords || (startCoords = {x: this.x, y: this.y});
+            let distanceToNextPoint = Math.sqrt(Math.pow(nextPoint.x - startCoords.x, 2) + Math.pow(nextPoint.y - startCoords.y, 2));
 
-        visualisePathing(targetToPathTo, distanceThingIsAway);
+
+            visualisePathing(nextPoint, distanceToNextPoint, startCoords); 
+            if (!closestTerrain) { return; }
+            executePathingVisual(targetToPathTo, startCoords);
+        }
+
+        executePathingVisual(targetToPathTo);
     }
 
     moveItem() {
