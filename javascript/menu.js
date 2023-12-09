@@ -45,7 +45,39 @@ const populateItemDisplayBox = () => {
     }
 }
 
-export const setUpStartDetails = () => {
+export const mainMenu = () => {
+    data.startDetails.innerHTML = `
+    <h1>Rock, Paper, Scissors Battle Royale</h1>
+    <br>
+    <form>
+        <input id="skirmish" type="submit" value="Skirmish">
+        <br>
+        <br>
+        <input id="campaign" type="submit" value="Campaign">
+        <br>
+        <br>
+        <input id="options" type="submit" value="Options">
+        <br>
+        <br>
+        <input id="credits" type="submit" value="Credits">
+    </form>`
+    //adds a listener to the skirmish button that executes setUpSkirmishDetails
+    document.getElementById('skirmish').addEventListener("click", () => {
+        setUpSkirmishDetails();
+    });
+    //gets credits button to work 
+    document.getElementById('credits').addEventListener("click", () => {
+        data.startDetails.innerHTML = `
+        <img src="images/credits.jpg" style="position: absolute; top: 100px;">
+        <input id="mainMenu" type="submit" value="mainMenu" style="z-index: 3; position: absolute; top: 100px;">`;
+        document.getElementById('mainMenu').addEventListener("click", () => {
+            mainMenu();
+        });
+    });
+}
+
+
+export const setUpSkirmishDetails = () => {
     //adds the start details to the DOM
     data.startDetails.innerHTML = `
     <h1>Welcome to<br>Rock, Paper, Scissors Battle Royale!</h1>
@@ -71,12 +103,52 @@ export const setUpStartDetails = () => {
         <div class="itemDisplayContainer"></div>
     </form>
     `;
-    populateItemDisplayBox();   //populates the item display box to show the correct number of items
+
+    //populates the item display box to show the correct number of items
+    populateItemDisplayBox();   
     //adds a listeners to the gameMode radio buttons that executes populateDisplayBox
     document.querySelectorAll('input[name="gameMode"]').forEach((radio) => {
         radio.addEventListener("change", populateItemDisplayBox);
     });
     document.getElementById('num').addEventListener("change", populateItemDisplayBox);
+
+
+    //functions that start the show running
+    let runTimestep;
+    const runGameTimestepFunction = () => {
+        //let runTimestep;
+        runTimestep = setInterval(() => {
+            //loops over the moveItem function for each item
+            for (let i = 0; i < data.allItems.length; i++) {
+                if (data.gameOver === true) { clearInterval(runTimestep); }
+                if (data.allItems[i].alive) {
+                    data.allItems[i].moveItem();
+                }
+            }
+        }, data.timestep);
+    }
+
+    document.getElementById('startBattle').addEventListener('click', (event) => {
+        event.preventDefault();
+        let num = document.getElementById('num').value;
+        data.captureKill = document.querySelector('input[name="captureKill"]:checked').value;
+        data.gameMode = document.querySelector('input[name="gameMode"]:checked').value;
+        num = num * 3;
+        data.startDetails.innerHTML = "";
+        document.getElementById('stopBattle').style.display = "block";
+        if (data.gameMode === "FFA") {
+            populateFieldClassic(num);
+        } else {
+            populateFieldTeams(num); 
+        }
+        runGameTimestepFunction();
+    });
+
+    document.getElementById('stopBattle').addEventListener('click', (event) => {
+        console.log("stop");
+        event.preventDefault();
+        clearInterval(runTimestep);
+    });
 }
 
 //this function populates the field with 'num' of items

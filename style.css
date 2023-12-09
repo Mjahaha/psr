@@ -1,17 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
 
 body {
+    font-family: 'Luckiest Guy', cursive;
     background-image: url("/images/Menu Background.png");
     backdrop-filter: blur(10px);
     width: 100vw;
     height: 100vh;
-}
-
-body, input {
-    background-color: rgb(255, 255, 255);
-    font-family: 'Luckiest Guy', cursive;
     margin: 0px;
 }
+
+input[type=submit] {
+    font-family: 'Luckiest Guy', cursive; 
+    font-size: 35px;
+    border: 2px solid black;
+    border-radius: 5px;
+
+}
+
+
+
 #initialDetails {
     display: none;
 }

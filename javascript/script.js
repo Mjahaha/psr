@@ -2,9 +2,9 @@ import { data } from "./data.js";
 import { addItemIntoSortedBinarySearch } from "./arrayFunctions.js";
 
 
-import { setUpStartDetails, populateFieldClassic, populateFieldTeams } from "./menu.js";
+import { mainMenu, populateFieldClassic, populateFieldTeams } from "./menu.js";
 
-setUpStartDetails();
+mainMenu();
 //populateField(30);
 
 let runTimestep;
