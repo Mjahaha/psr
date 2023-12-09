@@ -1,5 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
 
+body {
+    background-image: url("/images/Menu Background.png");
+    backdrop-filter: blur(10px);
+    width: 100vw;
+    height: 100vh;
+}
+
 body, input {
     background-color: rgb(255, 255, 255);
     font-family: 'Luckiest Guy', cursive;

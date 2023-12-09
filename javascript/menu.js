@@ -1,7 +1,7 @@
 import { data } from "./data.js";
 import { itemClass } from "./itemClass.js";
 
-const populateDisplayBox = () => {
+const populateItemDisplayBox = () => {
     console.log("populateDisplayBox started")
     const itemDisplayContainer = document.querySelector(".itemDisplayContainer");
     const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
@@ -46,9 +46,7 @@ const populateDisplayBox = () => {
 }
 
 export const setUpStartDetails = () => {
-    //creates a form input labelled 'How many rocks, papers and scissors in this battle:'  
-    //and radio buttons with a choice of 'Capture' and 'Kill'
-    //and a button labelled 'Start Battle'
+    //adds the start details to the DOM
     data.startDetails.innerHTML = `
     <h1>Welcome to<br>Rock, Paper, Scissors Battle Royale!</h1>
     <form>
@@ -73,12 +71,12 @@ export const setUpStartDetails = () => {
         <div class="itemDisplayContainer"></div>
     </form>
     `;
-    populateDisplayBox();
+    populateItemDisplayBox();   //populates the item display box to show the correct number of items
     //adds a listeners to the gameMode radio buttons that executes populateDisplayBox
     document.querySelectorAll('input[name="gameMode"]').forEach((radio) => {
-        radio.addEventListener("change", populateDisplayBox);
+        radio.addEventListener("change", populateItemDisplayBox);
     });
-    document.getElementById('num').addEventListener("change", populateDisplayBox);
+    document.getElementById('num').addEventListener("change", populateItemDisplayBox);
 }
 
 //this function populates the field with 'num' of items
