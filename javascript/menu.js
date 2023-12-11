@@ -48,19 +48,17 @@ const populateItemDisplayBox = () => {
 export const mainMenu = () => {
     data.startDetails.innerHTML = `
     <h1>Rock, Paper, Scissors Battle Royale</h1>
-    <br>
     <form>
-        <input id="skirmish" type="submit" value="Skirmish">
+        <input id="campaign" type="button" value="Campaign">
         <br>
-        <br>
-        <input id="campaign" type="submit" value="Campaign">
-        <br>
-        <br>
-        <input id="options" type="submit" value="Options">
-        <br>
+        <input id="skirmish" type="submit" value="Skirmish">        
         <br>
         <input id="credits" type="submit" value="Credits">
     </form>`
+    //adds a listener to go to the test screen
+    document.getElementById('campaign').addEventListener("click", () => {
+        window.location.href = "./test.html";
+    });
     //adds a listener to the skirmish button that executes setUpSkirmishDetails
     document.getElementById('skirmish').addEventListener("click", () => {
         setUpSkirmishDetails();
@@ -187,9 +185,7 @@ export const populateFieldClassic = (num) => {
         let newItem;
         if (whichItemType === 0) { newItem = new itemClass("rock", "unaligned", specificsForItem); }
         else if (whichItemType === 1) { newItem = new itemClass("paper", "unaligned", specificsForItem); }
-        else { newItem = new itemClass("scissors", "unaligned", specificsForItem); }
-        console.log(`the start coords are ${actualItemX}, ${actualItemY} and the mouse is at ${mouseCoordsX}, ${mouseCoordsY}`)
-        
+        else { newItem = new itemClass("scissors", "unaligned", specificsForItem); }        
         i++;
     }, 10); 
 

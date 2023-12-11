@@ -286,7 +286,8 @@ export const itemClass = class {
         //console.log('nearestSameDistance is ' + this.nearestSameDistance);
     }
 
-    getDirection(target) {    //returns the angle to travel. Taking an ID for items, or a JSON with an x and y property
+    getDirection(target,startCoordObjGD) {    //returns the angle to travel. Taking an ID for items, or a JSON with an x and y property
+        //finding the targets X and Ys
         let targetX, targetY;
         if (typeof target == "object" || typeof target == "function") {
             targetX = target.x;
@@ -296,8 +297,18 @@ export const itemClass = class {
             targetX = data.allItems[target].x;
             targetY = data.allItems[target].y;
         }
+
+        //finding starting point X and Ys
+        let startX, startY;
+        if (!startCoordObjGD) {
+            startX = this.x;
+            startY = this.y;
+        } else {
+            startX = startCoordObjGD.x;
+            startY = startCoordObjGD.y;
+        }
         
-        let angle = Math.atan2(this.y - targetY, this.x - targetX) * 180 / Math.PI;
+        let angle = Math.atan2(startY - targetY, startX - targetX) * 180 / Math.PI;
         return angle;
     }
 
@@ -399,33 +410,41 @@ export const itemClass = class {
 
     pathing() {
         this.getNearestPredPreySame();
-        let targetToPathTo = this.nearestPrey;
-        let distanceThingIsAway = this.nearestPreyDistance;
+        let targetToPathTo = data.allItems[this.nearestPrey];
+        const fakeStartPoint = {x: 1200, y: 700};
 
-        const visualisePathing = (pathTarget, distanceAway, startCoordObj) => {
-            let angle = this.getDirection(pathTarget);
+        const visualisePathing = (pathTarget, distanceAway, startCoordObjVP) => {
+            let angle = this.getDirection(pathTarget, startCoordObjVP);
             angle += 180;
-            let distanceToTravelEachStep = 20;
+            let distanceToTravelEachStep = 40;
             const distanceToTravelEachStepX = distanceToTravelEachStep * Math.cos(angle * Math.PI / 180);
             const distanceToTravelEachStepY = distanceToTravelEachStep * Math.sin(angle * Math.PI / 180);
+            //console.log(`the distanceX is ${distanceToTravelEachStepX} and the distanceY is ${distanceToTravelEachStepY}`)
             let distanceTravelled = 0;
-            let currentX = (startCoordObj && startCoordObj.x) || this.x; 
-            let currentY = (startCoordObj && startCoordObj.y) || this.y;
+            
+            //define starting point and initialise starting location
+            let beginningX = (startCoordObjVP && startCoordObjVP.x) || this.x; 
+            let beginningY = (startCoordObjVP && startCoordObjVP.y) || this.y;
+            let currentX = beginningX;
+            let currentY = beginningY;
 
             //a loop that creates dots all the way to the nearest predator
             while (distanceTravelled < distanceAway) {
+                this.createDotForTesting(currentX, currentY);
+                //console.log(`distance travelled is ${distanceTravelled} and distance away is ${distanceAway}`)
+                //console.log(`currentX is ${currentX} and currentY is ${currentY}`)
                 currentX += distanceToTravelEachStepX;
                 currentY += distanceToTravelEachStepY;
-                this.createDotForTesting(currentX, currentY);
-                distanceTravelled = Math.sqrt(Math.pow(currentX - this.x, 2) + Math.pow(currentY - this.y, 2));
+
+                distanceTravelled = Math.sqrt(Math.pow(beginningX - currentX, 2) + Math.pow(beginningY - currentY, 2));
             }
         } 
 
-        const doesStraightLinePathIntersectTerrain = (pathTargetId, terrain, startCoordsObj) => {
+        const doesStraightLinePathIntersectTerrain = (pathTarget, terrain, startCoordsObjDSLPIT) => {
             //get relevant coords for intersection formula
-            const thisX = (startCoordsObj && startCoordsObj.x) || this.x; 
-            const thisY = (startCoordsObj && startCoordsObj.y) || this.y;
-            const targetX = data.allItems[pathTargetId].x, targetY = data.allItems[pathTargetId].y; 
+            const thisX = (startCoordsObjDSLPIT && startCoordsObjDSLPIT.x) || this.x; 
+            const thisY = (startCoordsObjDSLPIT && startCoordsObjDSLPIT.y) || this.y;
+            const targetX = pathTarget.x, targetY = pathTarget.y; 
             const terrainX = terrain.x, terrainY = terrain.y;
 
             //calculate the intersection formula
@@ -438,26 +457,29 @@ export const itemClass = class {
             return distance < terrain.radius;
         }
 
-        const shortestPathAroundTerrain = terrain => {  //find the shorts path around a terrain by finding the smallest angle
+        const shortestPathAroundTerrain = (terrain, startCoordsObjSPAT) => {  
+            //find the shorts path around a terrain by finding the smallest angle between the target and the left and right paths
             const angleDiffFunction = (angle1, angle2) => {     //stops isses when the angles are on opposite sides of 0
                 const diff = Math.abs(angle1 - angle2) % 360;
                 return Math.min(diff, 360 - diff);
             }
             //general variables
             const terrainX = terrain.x, terrainY = terrain.y;
-            const angle = this.getDirection({x: terrainX, y: terrainY});
-            const angleToTarget = this.getDirection(targetToPathTo);
+            const angleToTerrain = this.getDirection({x: terrainX, y: terrainY}, startCoordsObjSPAT);
+            const angleToTarget = this.getDirection(targetToPathTo, startCoordsObjSPAT);
+
             //variables storing info about the left hand path
-            const perpendicularAngleLeft = angle + 90;
-            const leftX = terrainX + terrain.radius * Math.cos(perpendicularAngleLeft * Math.PI / 180);
-            const leftY = terrainY + terrain.radius * Math.sin(perpendicularAngleLeft * Math.PI / 180);
-            const leftAngle = this.getDirection({x: leftX, y: leftY});
+            const perpendicularAngleLeft = angleToTerrain + 90;
+            const leftX = terrainX + terrain.radius * Math.cos(perpendicularAngleLeft * Math.PI / 180) * 1.2;
+            const leftY = terrainY + terrain.radius * Math.sin(perpendicularAngleLeft * Math.PI / 180) * 1.2;
+            const leftAngle = this.getDirection({x: leftX, y: leftY}, startCoordsObjSPAT);
             const leftAngleDiff = angleDiffFunction(angleToTarget, leftAngle);
-            const perpendicularAngleRight = angle - 90;
+            
             //variables storing info about the right hand path
-            const rightX = terrainX + terrain.radius * Math.cos(perpendicularAngleRight * Math.PI / 180);
-            const rightY = terrainY + terrain.radius * Math.sin(perpendicularAngleRight * Math.PI / 180);
-            const rightAngle = this.getDirection({x: rightX, y: rightY});
+            const perpendicularAngleRight = angleToTerrain - 90;
+            const rightX = terrainX + terrain.radius * Math.cos(perpendicularAngleRight * Math.PI / 180) * 1.2;
+            const rightY = terrainY + terrain.radius * Math.sin(perpendicularAngleRight * Math.PI / 180) * 1.2;
+            const rightAngle = this.getDirection({x: rightX, y: rightY}, startCoordsObjSPAT);
             const rightAngleDiff = angleDiffFunction(angleToTarget, rightAngle);
 
             //vars for drawing dots to show what way we are going
@@ -469,12 +491,18 @@ export const itemClass = class {
             return returnVal; 
         }
 
-        const findClosestTerrainInTheWay = (targetToCheck) => {
+        const findClosestTerrainInTheWay = (targetToCheck, startCoords) => {
+
+            //if there is no terrain in the way, move to the target 
+            let startingCoordsOfThisRun = {};
+            if (!startCoords) { startingCoordsOfThisRun = {x: this.x, y: this.y}; }
+            else { startingCoordsOfThisRun = startCoords }
+
             let closestIntersectingTerrainId = null;
             let distanceToClosestIntersectingTerrain = 100000;
             data.allTerrain.forEach(terrain => {
-                const thisDistance = Math.sqrt(Math.pow(terrain.x - this.x, 2) + Math.pow(terrain.y - this.y, 2));
-                const intersects = doesStraightLinePathIntersectTerrain(targetToCheck, terrain);
+                const thisDistance = Math.sqrt(Math.pow(terrain.x - startingCoordsOfThisRun.x, 2) + Math.pow(terrain.y - startingCoordsOfThisRun.y, 2));
+                const intersects = doesStraightLinePathIntersectTerrain(targetToCheck, terrain, startingCoordsOfThisRun);
                 if (intersects && thisDistance < distanceToClosestIntersectingTerrain) {
                     closestIntersectingTerrainId = terrain.id;
                     distanceToClosestIntersectingTerrain = thisDistance;
@@ -484,16 +512,41 @@ export const itemClass = class {
             return {terrain : data.allTerrain[closestIntersectingTerrainId], distance : distanceToClosestIntersectingTerrain};
         }
         
-        const executePathingVisual = (targetToPathTo, startCoords) => {
-            let closestTerrain = findClosestTerrainInTheWay(targetToPathTo);
-            let nextPoint = shortestPathAroundTerrain(closestTerrain.terrain);
-            startCoords || (startCoords = {x: this.x, y: this.y});
-            let distanceToNextPoint = Math.sqrt(Math.pow(nextPoint.x - startCoords.x, 2) + Math.pow(nextPoint.y - startCoords.y, 2));
+        let executePathingVisualCounter = 0;
+        const executePathingVisual = (targetToPathToEPV, startCoords) => {
 
+            //breaks out of the loop if it has been going for too long
+            executePathingVisualCounter++;
+            if (executePathingVisualCounter > 5) { return; }
+            console.log(`THIS IS RUN NUMBER: ${executePathingVisualCounter}`);
 
+            
+            // HANDLE THE EXCEPTION OF IF THERE IS NO TERRAIN!
+            //finds terrain details
+            let distanceToNextPoint = 0;
+            let closestBlockingTerrain = findClosestTerrainInTheWay(targetToPathToEPV, startCoords);
+            if (!closestBlockingTerrain) { 
+                distanceToNextPoint = Math.sqrt(Math.pow(targetToPathToEPV.x - startCoords.x, 2) +
+                Math.pow(targetToPathToEPV.y - startCoords.y, 2));
+                //console.log(`target coords are ${targetToPathToEPV.x}, ${targetToPathToEPV.y}, distance is ${distanceToNextPoint} and startCoords are ${startCoords.x}, ${startCoords.y}`)
+                visualisePathing(targetToPathTo, distanceToNextPoint, startCoords);
+                return; 
+            }
+            let nextPoint = shortestPathAroundTerrain(closestBlockingTerrain.terrain, startCoords);
+
+            //if there is no terrain in the way, move to the target 
+            let startingCoordsOfThisRun = {};
+            if (!startCoords) { startingCoordsOfThisRun = {x: this.x, y: this.y}; }
+            else { startingCoordsOfThisRun = startCoords }
+            //console.log(`startCoords of this run are ${startingCoordsOfThisRun.x}, ${startingCoordsOfThisRun.y}`)
+            //console.log(`nextPoint is ${nextPoint.x}, ${nextPoint.y}`);
+
+            //visual drawing code
+            distanceToNextPoint = Math.sqrt(Math.pow(nextPoint.x - startingCoordsOfThisRun.x, 2) + 
+            Math.pow(nextPoint.y - startingCoordsOfThisRun.y, 2));
             visualisePathing(nextPoint, distanceToNextPoint, startCoords); 
-            if (!closestTerrain) { return; }
-            executePathingVisual(targetToPathTo, startCoords);
+            if (!closestBlockingTerrain) { return; }
+            executePathingVisual(targetToPathToEPV, nextPoint);
         }
 
         executePathingVisual(targetToPathTo);

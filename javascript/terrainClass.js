@@ -11,7 +11,7 @@ export const terrainClass = class {
         this.topLeftX = this.x - this.radius;
         this.topLeftY = this.y - this.radius;
         this.element = document.createElement('div');
-        this.element.classList.add(['terrain', type]);
+        this.element.classList.add('terrain', type);
         this.element.style.height = `${this.radius * 2}px`;
         this.element.style.width = `${this.radius * 2}px`;
         this.element.style.top = `${this.topLeftY}px`;
@@ -22,7 +22,6 @@ export const terrainClass = class {
         data.allTerrain.push(this);
         data.field.appendChild(this.element);
         this.center = document.createElement('div');
-        this.center.classList.add(['terrain', type]);
         this.center.style.height = `$4px`;
         this.center.style.width = `$4px`;
         this.center.style.top = `${this._y}px`;

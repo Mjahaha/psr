@@ -1,31 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
 
+/*  My colour pallette:
+Orange: #E04700 
+Dark Orange: #BD5C30 
+Green: #41E000
+Dark Green: #3B8F18 
+Blue: #000AE0
+*/
+
 body {
     font-family: 'Luckiest Guy', cursive;
     background-image: url("/images/Menu Background.png");
+    background-position: center;
     backdrop-filter: blur(10px);
     width: 100vw;
     height: 100vh;
     margin: 0px;
 }
 
-input[type=submit] {
-    font-family: 'Luckiest Guy', cursive; 
-    font-size: 35px;
-    border: 2px solid black;
-    border-radius: 5px;
-
-}
-
-
-
-#initialDetails {
-    display: none;
-}
-
 h1 {
+    font-size: 50px;
     z-index: 2;
 }
+
+/* Main menu screen */
 
 #startDetails {
     display: flex;
@@ -34,6 +32,35 @@ h1 {
     justify-content: center;
     height: 80vh;
     text-align: center;
+    z-index: 2;
+}
+
+input[type=submit], input[type=button] {
+    font-family: 'Luckiest Guy', cursive; 
+    font-size: 25px;
+    border: 8px solid black;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    z-index: 4;
+} 
+
+#campaign {
+    background-color: #41E000;
+    color: black;
+    border: 8px solid #3B8F18;
+}
+
+#skirmish {
+    background-color: #E04700;
+    color: white;
+    border: 8px solid #BD5C30;
+}
+
+#credits {
+    background-color: #000AE0;
+    color: white;
+    border: 8px solid #000453;
 }
 
 /* the sideBar is a nav bar that sits on the right side of the screen and has a number of icons */
@@ -96,17 +123,20 @@ h1 {
 
 .terrain {
     position: absolute;
+    background-color: white;
+    background-image: url("./images/TreeTerrain.png");
     background-size: contain;
     background-repeat: no-repeat; 
-    background-position: center; 
+    background-position: center;
     border: 2px solid darkblue;
     top: 400px;
     left: 600px;
     width: 200px;
     height: 200px;
+    z-index: 2;
 }
 
-.round {
+.circle {
     border-radius: 50%;
 }
 

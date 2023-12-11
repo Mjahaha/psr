@@ -20,6 +20,7 @@ const runTimestepFunction = () => {
     }, data.timestep);
 }
 
+/*
 document.getElementById('startBattle').addEventListener('click', (event) => {
     event.preventDefault();
     let num = document.getElementById('num').value;
@@ -41,3 +42,4 @@ document.getElementById('stopBattle').addEventListener('click', (event) => {
     event.preventDefault();
     clearInterval(runTimestep);
 });
+*/
