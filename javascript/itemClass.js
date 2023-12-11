@@ -411,35 +411,10 @@ export const itemClass = class {
     pathing() {
         this.getNearestPredPreySame();
         let targetToPathTo = data.allItems[this.nearestPrey];
-        const fakeStartPoint = {x: 1200, y: 700};
+        let executePathingVisualCounter = 0;    //the executePathingVisualisation function uses recursion, this is the 
+                                                //counter that stops it from going on forever
 
-        const visualisePathing = (pathTarget, distanceAway, startCoordObjVP) => {
-            let angle = this.getDirection(pathTarget, startCoordObjVP);
-            angle += 180;
-            let distanceToTravelEachStep = 40;
-            const distanceToTravelEachStepX = distanceToTravelEachStep * Math.cos(angle * Math.PI / 180);
-            const distanceToTravelEachStepY = distanceToTravelEachStep * Math.sin(angle * Math.PI / 180);
-            //console.log(`the distanceX is ${distanceToTravelEachStepX} and the distanceY is ${distanceToTravelEachStepY}`)
-            let distanceTravelled = 0;
-            
-            //define starting point and initialise starting location
-            let beginningX = (startCoordObjVP && startCoordObjVP.x) || this.x; 
-            let beginningY = (startCoordObjVP && startCoordObjVP.y) || this.y;
-            let currentX = beginningX;
-            let currentY = beginningY;
-
-            //a loop that creates dots all the way to the nearest predator
-            while (distanceTravelled < distanceAway) {
-                this.createDotForTesting(currentX, currentY);
-                //console.log(`distance travelled is ${distanceTravelled} and distance away is ${distanceAway}`)
-                //console.log(`currentX is ${currentX} and currentY is ${currentY}`)
-                currentX += distanceToTravelEachStepX;
-                currentY += distanceToTravelEachStepY;
-
-                distanceTravelled = Math.sqrt(Math.pow(beginningX - currentX, 2) + Math.pow(beginningY - currentY, 2));
-            }
-        } 
-
+        //checks if a straight line path between two points intersects with a particular terrain
         const doesStraightLinePathIntersectTerrain = (pathTarget, terrain, startCoordsObjDSLPIT) => {
             //get relevant coords for intersection formula
             const thisX = (startCoordsObjDSLPIT && startCoordsObjDSLPIT.x) || this.x; 
@@ -454,12 +429,15 @@ export const itemClass = class {
             const distance = Math.abs(A * terrainX + B * terrainY + C) / Math.sqrt(A * A + B * B);
 
             //check if the distance is less than the radius of the terrain
-            return distance < terrain.radius;
+            const intersection = distance < terrain.radius;
+            return intersection;
         }
 
+        //find the shorts path around an intersecting terrain by finding the left and right paths, and finding the 
+        //smallest angle between the target and them and the direct linear route to the target
         const shortestPathAroundTerrain = (terrain, startCoordsObjSPAT) => {  
-            //find the shorts path around a terrain by finding the smallest angle between the target and the left and right paths
-            const angleDiffFunction = (angle1, angle2) => {     //stops isses when the angles are on opposite sides of 0
+            //stops isses when the angles are on opposite sides of 0
+            const angleDiffFunction = (angle1, angle2) => {     
                 const diff = Math.abs(angle1 - angle2) % 360;
                 return Math.min(diff, 360 - diff);
             }
@@ -490,9 +468,9 @@ export const itemClass = class {
             const returnVal = leftAngleDiff < rightAngleDiff ? {x: leftX, y: leftY} : {x: rightX, y: rightY};
             return returnVal; 
         }
-
+        
+        //finds the closest terrain in the way of the target and returns false if there is none
         const findClosestTerrainInTheWay = (targetToCheck, startCoords) => {
-
             //if there is no terrain in the way, move to the target 
             let startingCoordsOfThisRun = {};
             if (!startCoords) { startingCoordsOfThisRun = {x: this.x, y: this.y}; }
@@ -511,30 +489,62 @@ export const itemClass = class {
             if (closestIntersectingTerrainId == null) { return false; }
             return {terrain : data.allTerrain[closestIntersectingTerrainId], distance : distanceToClosestIntersectingTerrain};
         }
-        
-        let executePathingVisualCounter = 0;
-        const executePathingVisual = (targetToPathToEPV, startCoords) => {
 
+        //visualisePathing creates dots between two points on the map
+        const visualisePathing = (pathTarget, distanceAway, startCoordObjVP) => { 
+            let angle = this.getDirection(pathTarget, startCoordObjVP) + 180;
+            let distanceToTravelEachStep = 40;
+            const distanceToTravelEachStepX = distanceToTravelEachStep * Math.cos(angle * Math.PI / 180);
+            const distanceToTravelEachStepY = distanceToTravelEachStep * Math.sin(angle * Math.PI / 180);
+            let distanceTravelled = 0;
+            //console.log(`the distanceX is ${distanceToTravelEachStepX} and the distanceY is ${distanceToTravelEachStepY}`)
+            
+            //define starting point and initialise starting location
+            let beginningX = (startCoordObjVP && startCoordObjVP.x) || this.x; 
+            let beginningY = (startCoordObjVP && startCoordObjVP.y) || this.y;
+            let currentX = beginningX;
+            let currentY = beginningY;
+
+            //a loop that creates dots all the way to the nearest predator
+            while (distanceTravelled < distanceAway) {
+                //console.log(`distance travelled is ${distanceTravelled} and distance away is ${distanceAway}`)
+                //console.log(`currentX is ${currentX} and currentY is ${currentY}`)
+                this.createDotForTesting(currentX, currentY);
+                currentX += distanceToTravelEachStepX;
+                currentY += distanceToTravelEachStepY;
+
+                distanceTravelled = Math.sqrt(Math.pow(beginningX - currentX, 2) + Math.pow(beginningY - currentY, 2));
+            }
+        } 
+        
+        //executePathingVisual is a recursive function that finds the path two the nearest target, checks what terrain is 
+        //in the way, finds the shortest path around that terrain, and then calls itself again to check if there is any
+        //terrain in the way now we've gone around gthe first bit of terrain
+        const executePathingVisual = (targetToPathToEPV, startCoords) => {
             //breaks out of the loop if it has been going for too long
             executePathingVisualCounter++;
             if (executePathingVisualCounter > 5) { return; }
-            console.log(`THIS IS RUN NUMBER: ${executePathingVisualCounter}`);
-
+            //console.log(`THIS IS RUN NUMBER: ${executePathingVisualCounter}`);
             
-            // HANDLE THE EXCEPTION OF IF THERE IS NO TERRAIN!
-            //finds terrain details
             let distanceToNextPoint = 0;
-            let closestBlockingTerrain = findClosestTerrainInTheWay(targetToPathToEPV, startCoords);
-            if (!closestBlockingTerrain) { 
-                distanceToNextPoint = Math.sqrt(Math.pow(targetToPathToEPV.x - startCoords.x, 2) +
-                Math.pow(targetToPathToEPV.y - startCoords.y, 2));
+            let closestBlockingTerrain = findClosestTerrainInTheWay(targetToPathToEPV, startCoords); 
+            
+            //this breaks out of the recursion if there is no terrain in the way and draws final line
+            if (closestBlockingTerrain === false) { 
+                if (startCoords) {  //if starCoords aren't populated, use the items current coords
+                    distanceToNextPoint = Math.sqrt(Math.pow(targetToPathToEPV.x - startCoords.x, 2) + Math.pow(targetToPathToEPV.y - startCoords.y, 2));
+                } else {
+                    distanceToNextPoint = Math.sqrt(Math.pow(targetToPathToEPV.x - this.x, 2) + Math.pow(targetToPathToEPV.y - this.y, 2));
+                }
                 //console.log(`target coords are ${targetToPathToEPV.x}, ${targetToPathToEPV.y}, distance is ${distanceToNextPoint} and startCoords are ${startCoords.x}, ${startCoords.y}`)
                 visualisePathing(targetToPathTo, distanceToNextPoint, startCoords);
                 return; 
             }
+
+            //since the recursion isn't broken so there is terrain in the way, we find which way we need to go around it
             let nextPoint = shortestPathAroundTerrain(closestBlockingTerrain.terrain, startCoords);
 
-            //if there is no terrain in the way, move to the target 
+            //get startingCoordsOfThisRun
             let startingCoordsOfThisRun = {};
             if (!startCoords) { startingCoordsOfThisRun = {x: this.x, y: this.y}; }
             else { startingCoordsOfThisRun = startCoords }
@@ -542,10 +552,8 @@ export const itemClass = class {
             //console.log(`nextPoint is ${nextPoint.x}, ${nextPoint.y}`);
 
             //visual drawing code
-            distanceToNextPoint = Math.sqrt(Math.pow(nextPoint.x - startingCoordsOfThisRun.x, 2) + 
-            Math.pow(nextPoint.y - startingCoordsOfThisRun.y, 2));
+            distanceToNextPoint = Math.sqrt(Math.pow(nextPoint.x - startingCoordsOfThisRun.x, 2) + Math.pow(nextPoint.y - startingCoordsOfThisRun.y, 2));
             visualisePathing(nextPoint, distanceToNextPoint, startCoords); 
-            if (!closestBlockingTerrain) { return; }
             executePathingVisual(targetToPathToEPV, nextPoint);
         }
 
