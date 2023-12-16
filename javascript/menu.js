@@ -1,8 +1,9 @@
 import { data } from "./data.js";
 import { itemClass } from "./itemClass.js";
 
+//this function populates the item display box on the skirmish screen to show the correct number of items
 const populateItemDisplayBox = () => {
-    console.log("populateDisplayBox started")
+    //sets up the item display box containers
     const itemDisplayContainer = document.querySelector(".itemDisplayContainer");
     const gameMode = document.querySelector('input[name="gameMode"]:checked').value;
     if (gameMode === "FFA") {
@@ -22,11 +23,12 @@ const populateItemDisplayBox = () => {
     }
     document.getElementById('startDetails').appendChild(itemDisplayContainer);
     const theBoxes = document.getElementsByClassName(`itemDisplayBox`);
-    console.log(theBoxes)
+
+    //populates the item display box to show the correct number of items
     const numberOfItems = document.querySelector('#num').value;
     let itemClassToAdd;
     let elementToAdd = document.createElement('div');
-    for (let i = 0; i < theBoxes.length; i++) {
+    for (let i = 0; i < theBoxes.length; i++) { //for container box, set up a div with the correct classes
         elementToAdd.classList = "";
         if (theBoxes[i].classList.contains("unalignedRockDisplayBox")) { itemClassToAdd = ["rock"]; }
         if (theBoxes[i].classList.contains("unalignedPaperDisplayBox")) { itemClassToAdd = ["paper"]; }
@@ -37,15 +39,32 @@ const populateItemDisplayBox = () => {
         if (theBoxes[i].classList.contains("blueRockDisplayBox")) { itemClassToAdd = ["rock","blue"]; }
         if (theBoxes[i].classList.contains("bluePaperDisplayBox")) { itemClassToAdd = ["paper","blue"]; }
         if (theBoxes[i].classList.contains("blueScissorsDisplayBox")) { itemClassToAdd = ["scissors","blue"]; }
+        //add these classes
         elementToAdd.classList.add("itemDisplay");
         elementToAdd.classList.add(...itemClassToAdd);
+        //then add this element to the container box the correct number of times
         for (let j = 0; j < numberOfItems; j++) {
             theBoxes[i].appendChild(elementToAdd.cloneNode(true));
         }
     }
 }
 
+//functions that start the show running
+const runGameTimestepFunction = () => {
+    //let runTimestep;
+    data.gameTimestepId = setInterval(() => {
+        //loops over the moveItem function for each item
+        for (let i = 0; i < data.allItems.length; i++) {
+            if (data.gameOver === true) { clearInterval(data.gameTimestepId); }
+            if (data.allItems[i].alive) {
+                data.allItems[i].moveItem();
+            }
+        }
+    }, data.timestep);
+}
+
 export const mainMenu = () => {
+    data.reset();
     data.startDetails.innerHTML = `
     <h1>Rock, Paper, Scissors Battle Royale</h1>
     <form>
@@ -110,89 +129,90 @@ export const setUpSkirmishDetails = () => {
     });
     document.getElementById('num').addEventListener("change", populateItemDisplayBox);
 
-
-    //functions that start the show running
-    let runTimestep;
-    const runGameTimestepFunction = () => {
-        //let runTimestep;
-        runTimestep = setInterval(() => {
-            //loops over the moveItem function for each item
-            for (let i = 0; i < data.allItems.length; i++) {
-                if (data.gameOver === true) { clearInterval(runTimestep); }
-                if (data.allItems[i].alive) {
-                    data.allItems[i].moveItem();
-                }
-            }
-        }, data.timestep);
-    }
-
+    //Starts the skirmish
     document.getElementById('startBattle').addEventListener('click', (event) => {
+        console.log(data)
         event.preventDefault();
         let num = document.getElementById('num').value;
         data.captureKill = document.querySelector('input[name="captureKill"]:checked').value;
         data.gameMode = document.querySelector('input[name="gameMode"]:checked').value;
         num = num * 3;
+        data.gameStarted = true;
         data.startDetails.innerHTML = "";
+        updateSidebar();
         document.getElementById('stopBattle').style.display = "block";
         if (data.gameMode === "FFA") {
             populateFieldClassic(num);
         } else {
             populateFieldTeams(num); 
         }
-        runGameTimestepFunction();
     });
 
     document.getElementById('stopBattle').addEventListener('click', (event) => {
         console.log("stop");
         event.preventDefault();
-        clearInterval(runTimestep);
+        clearInterval(data.gameTimestepId);
     });
 }
 
-//this function populates the field with 'num' of items
-export const populateFieldClassic = (num) => {
-    //code to make the items come from the mouse
-    let isMouseInWindow = true;
-    let mouseCoordsX, mouseCoordsY;
-    const findMousePosition = document.addEventListener('mousemove', (event) => {
-        isMouseInWindow = true;
-        mouseCoordsX = event.clientX;
-        mouseCoordsY = event.clientY;
-    });
-    const findIfMouseExits = document.addEventListener('mouseout', () => {
-        isMouseInWindow = false;
-        mouseCoordsX = data.screenWidth / 2;
-        mouseCoordsY = data.screenHeight / 2;
-    });
-    
-    //loop that creates 'num' of items
-    let i = 0;
-    const createItemsOnField = setInterval(() => {      //using set interval to create items to have a transition effect
-        let actualItemX = Math.random() * data.screenWidth; 
-        let actualItemY = Math.random() * data.screenHeight;
-        if (data.allItems.length > 0) {     //moving the coords of the previous item after timer, otherwise it was moving before item entered the DOM so no transition
-            data.allItems[data.allItems.length - 1].x = actualItemX; 
-            data.allItems[data.allItems.length - 1].y = actualItemY; 
+
+const sendItemsToField = (num, functionToAssignItemPos, functionToCreateItems) => {
+    let i = 1;
+    data.widthOfSidebar = ((data.sidebar && data.sidebar.offsetWidth) || 0);
+    data.screenWidth = window.innerWidth - data.widthOfSidebar;
+    const createAnItem = setInterval(() => {
+
+        //if this isnt the first run, moves the coords of the previous item to get transition effect
+        //if you don't do it after the setInterval timer the transition doesn't work
+        if (data.allItems.length > 0) {     
+            functionToAssignItemPos(data.allItems[data.allItems.length - 1]);
         }
 
-        if (i >= num) { clearInterval(createItemsOnField); }    //exits loop when 'num' of items have been created
-
-        let specificsForItem = { 
-            x: mouseCoordsX || data.screenWidth / 2, 
-            y: mouseCoordsY || data.screenHeight / 2,
+        //exits loop when 'num' of items have been created
+        if (i >= num) {  
+            clearInterval(createAnItem); 
+            document.getElementById('startDetails').innerHTML = `
+            <input id="startActualBattle" type="button" value="Start Battle">`;
+            document.getElementById('startActualBattle').addEventListener("click", () => {
+                document.getElementById('startDetails').innerHTML = "";
+                runGameTimestepFunction();
+            });
         }
-        let whichItemType = i % 3;
-        let newItem;
-        if (whichItemType === 0) { newItem = new itemClass("rock", "unaligned", specificsForItem); }
-        else if (whichItemType === 1) { newItem = new itemClass("paper", "unaligned", specificsForItem); }
-        else { newItem = new itemClass("scissors", "unaligned", specificsForItem); }        
+        
+        //creates the item at the position of the mouse
+        let argSpecificsForItem = { 
+            x: data.mouseX || data.screenWidth / 2, 
+            y: data.mouseY || data.screenHeight / 2,
+        }
+        
+        functionToCreateItems(i, argSpecificsForItem);
+        updateSidebar();    
         i++;
+
     }, 10); 
+}
 
-    //removes listeners for function
-    document.removeEventListener('mousemove', findMousePosition);
-    document.removeEventListener('mouseout', findIfMouseExits);
+//this function populates the field with 'num' of unaligned items
+export const populateFieldClassic = (num) => {
+    //function to make the items come from the mouse initially 
+    const sendItemsToRandomPosition = (itemToSend) => {
+        let itemX = Math.random() * data.screenWidth; 
+        let itemY = Math.random() * data.screenHeight;
 
+            itemToSend.x = itemX; 
+            itemToSend.y = itemY; 
+    }
+
+    const createEqualNumberOfUnalignedItems = (i, argSpecificsForItem) => {
+        let whichItemType = i % 3;
+        if (whichItemType === 0) { new itemClass("rock", "unaligned", argSpecificsForItem); }
+        else if (whichItemType === 1) { new itemClass("paper", "unaligned", argSpecificsForItem); }
+        else { new itemClass("scissors", "unaligned", argSpecificsForItem); }    
+    } 
+
+    //run sendItemsToField function with populateFieldClassic specific functions
+    sendItemsToField(num, sendItemsToRandomPosition, createEqualNumberOfUnalignedItems);
+    
 }
 
 //this function populates the field with 'num' of items on each team 
@@ -210,4 +230,56 @@ export const populateFieldTeams = (num) => {
         else if (whichItem === 1) { new itemClass("rock", teamClass) }
         else { new itemClass("paper", teamClass) }
     }
+    
+}
+
+export const updateSidebar = () => {
+    data.sidebar.style.display = 'block';
+    if (data.allItems.length === 0) { return; }    
+
+
+    //creates an array of data.allItems[0] that makes a list of all unqiue team and types, like this, [{'team': 'red', 'type': 'rock'} ... ]
+    let dataToPopulateSidebar = []; 
+    data.allItems.map(item => {
+        let thisType = item.type;
+        let thisTeam = item.team;
+        let foundIt = false;
+        dataToPopulateSidebar.map(itemInSidebar => {
+            if (itemInSidebar.type === thisType && itemInSidebar.team === thisTeam) {
+                foundIt = true;
+                itemInSidebar.count += 1;
+            }
+        });
+        if (foundIt === false) {
+            dataToPopulateSidebar.push({type: thisType, team: thisTeam, count: 1});
+        }
+    });
+
+    //creates the div to add to the sidebar 
+    let greenDiv = "";
+    let unalignedDiv = "";
+    let redDiv = "";
+    let blueDiv = "";
+
+    dataToPopulateSidebar.map(item => {
+        if (item.team === "green") {
+            greenDiv += `<div class="sidebarPicture ${item.type} ${item.team}"></div>`;
+            greenDiv += `<p>${item.count}</p>`;
+        }
+        if (item.team === "unaligned") {
+            unalignedDiv += `<div class="sidebarPicture ${item.type} ${item.team}"></div>`;
+            unalignedDiv += `<p>${item.count}</p>`;
+        }
+        if (item.team === "red") {
+            redDiv += `<div class="sidebarPicture ${item.type} ${item.team}"></div>`;
+            redDiv += `<p>${item.count}</p>`;
+        }
+        if (item.team === "blue") {
+            blueDiv += `<div class="sidebarPicture ${item.type} ${item.team}"></div>`;
+            blueDiv += `<p>${item.count}</p>`;
+        }
+    });
+
+    const content = greenDiv + unalignedDiv + redDiv + blueDiv;
+    data.sidebar.innerHTML = content;
 }

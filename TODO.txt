@@ -1,5 +1,4 @@
 General changes 
-- background? 
 - add a HUD for the game that
   a) shows how many items of each type are in play
   b) gives the user controls to set up field initially

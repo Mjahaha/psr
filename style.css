@@ -8,6 +8,7 @@ Dark Green: #3B8F18
 Blue: #000AE0
 */
 
+
 body {
     font-family: 'Luckiest Guy', cursive;
     background-image: url("/images/Menu Background.png");
@@ -21,6 +22,7 @@ body {
 h1 {
     font-size: 50px;
     z-index: 2;
+    text-shadow: #FFF 5px 5px 5px;
 }
 
 /* Main menu screen */
@@ -45,6 +47,11 @@ input[type=submit], input[type=button] {
     z-index: 4;
 } 
 
+input[type=submit]:hover, input[type=button]:hover {
+    padding: 15px;
+    margin: 5px;
+}
+
 #campaign {
     background-color: #41E000;
     color: black;
@@ -64,7 +71,7 @@ input[type=submit], input[type=button] {
 }
 
 /* the sideBar is a nav bar that sits on the right side of the screen and has a number of icons */
-#sideBar {
+#sidebar {
     position: absolute;
     right: 0px;
     top: 0px;
@@ -84,19 +91,25 @@ input[type=submit], input[type=button] {
     border-style: solid;
 }
 
+.sidebarPicture {
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+}
+
 #stopBattle {
     z-index: 5;
     display: none;
+    margin: 0px;
 }
 
 /* Details of the item display box */
 .itemDisplayContainer {
-    display: flex;
+    display: inline-flex;
     flex-grow: 1;
-    flex-direction: row;
     flex-wrap: wrap;
     justify-content: center; 
-    align-items: flex-start; 
+    align-items: center; 
     max-height: 200px;
     width: auto;
 }

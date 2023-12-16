@@ -1,4 +1,5 @@
 import { data } from "./data.js";
+import { mainMenu, updateSidebar } from "./menu.js";
 
 export const itemClass = class {
     constructor(type, team, specifics) {
@@ -334,6 +335,7 @@ export const itemClass = class {
 
     collisionAction(targetId) {
         if (targetId == null) { return false; }
+        updateSidebar();   //keep sidebar stats up to date
         //console.log(`collision between ${this.id} and ${targetId}`);
         //actions for if item is colliding with a predator or prey item
         if (data.captureKill == "kill" && data.allItems[targetId].type == this.preyType)  //the items wins - kill
@@ -362,27 +364,40 @@ export const itemClass = class {
 
         //check if there is only one class left
         if (data.allRocks.length === 0 && data.allPapers.length === 0) { 
-            data.startDetails.innerHTML = `<h1>Scissors wins!</h1>`;
+            data.startDetails.innerHTML = `
+            <h1>Scissors wins!</h1>
+            <input type="button" id="return" value="Return"">`;
+            document.getElementById('return').addEventListener('click', mainMenu);
             data.gameOver = true;
         }
         if (data.allPapers.length === 0 && data.allScissors.length === 0) { 
-            data.startDetails.innerHTML = `<h1>Rock wins!</h1>`; 
+            data.startDetails.innerHTML = `<h1>Rock wins!</h1>
+            <input type="button" id="return" value="Return"">`;
+            document.getElementById('return').addEventListener('click', mainMenu); 
             data.gameOver = true; 
         }
         if (data.allScissors.length === 0 && data.allRocks.length === 0) { 
-            data.startDetails.innerHTML = `<h1>Paper wins!</h1>`; 
+            data.startDetails.innerHTML = `<h1>Paper wins!</h1>
+            <input type="button" id="return" value="Return"">`;
+            document.getElementById('return').addEventListener('click', mainMenu); 
             data.gameOver = true; 
         }
         if (data.allBlue.length === 0 && data.allRed.length === 0 && data.allUnaligned.length === 0) { 
-            data.startDetails.innerHTML = `<h1>Green wins!</h1>`; 
+            data.startDetails.innerHTML = `<h1>Green wins!</h1>
+            <input type="button" id="return" value="Return"">`;
+            document.getElementById('return').addEventListener('click', mainMenu); 
             data.gameOver = true; 
         }
         if (data.allRed.length === 0 && data.allGreen.length === 0 && data.allUnaligned.length === 0) { 
-            data.startDetails.innerHTML = `<h1>Blue wins!</h1>`; 
+            data.startDetails.innerHTML = `<h1>Blue wins!</h1>
+            <input type="button" id="return" value="Return"">`;
+            document.getElementById('return').addEventListener('click', mainMenu); 
             data.gameOver = true; 
         }
         if (data.allGreen.length === 0 && data.allBlue.length === 0 && data.allUnaligned.length === 0) { 
-            data.startDetails.innerHTML = `<h1>Red wins!</h1>`; 
+            data.startDetails.innerHTML = `<h1>Red wins!</h1>
+            <input type="button" id="return" value="Return"">`;
+            document.getElementById('return').addEventListener('click', mainMenu);
             data.gameOver = true; 
         }
 
@@ -562,8 +577,9 @@ export const itemClass = class {
 
     moveItem() {
         this.getNearestPredPreySame();
+        //if pred, prey or same are null, then console log
         //console.log(`for ${this.id} ${this.team} ${this.type}, the nearestPredator is ${this.nearestPredator} and the nearestPrey is ${this.nearestPrey} and the nearestSame is ${this.nearestSame}`);
-    
+        
         //determine if the item is moving to predator or prey
         let target;
         let angle = 0;
@@ -588,29 +604,3 @@ export const itemClass = class {
         this.collisionDetection(this.nearestSame);
     }
 }
-
-
-//TESTING
-/*
-new itemClass("rock", "unaligned");
-new itemClass("paper", "unaligned");
-new itemClass("scissors", "unaligned");
-new itemClass("rock", "unaligned");
-new itemClass("paper", "unaligned");
-new itemClass("scissors", "unaligned");
-data.allItems[0].getNearestPredPreySame();
-data.allItems[1].getNearestPredPreySame();
-data.allItems[2].getNearestPredPreySame();
-console.log("angle: " + data.allItems[0].getDirection(data.allItems[0].nearestPredator));
-
-//checks for any collisions of every item with every other item
-for (let i = 0; i < data.allItems.length; i++) {
-    for (let j = 0; j < data.allItems.length; j++) {
-        if (i === j) { continue; }
-        if (data.allItems[i].collisionDetection(data.allItems[j].id)) {
-            console.log("collision between " + data.allItems[i].id + " and " + data.allItems[j].id);
-        }
-    }
-}
-
-*/

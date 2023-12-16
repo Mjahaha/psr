@@ -1,16 +1,21 @@
-const myData = class {
+export const myData = class {
     constructor() {
         this.itemCount = 0;
         this.terrainCount = 0;
         this.field = document.getElementById('theField');
         this.startDetails = document.getElementById('startDetails');
-        const widthOfSideBar = (document.getElementById('sideBar') && document.getElementById('sideBar').offsetWidth) || 0;
-        this.screenWidth = window.innerWidth - widthOfSideBar;
+        this.sidebar = document.getElementById('sidebar');
+        let widthOfSidebar;
+        if (this.sidebar.style.display = 'none') {widthOfSidebar = 0} 
+        else {widthOfSidebar = ((this.sidebar && this.sidebar.offsetWidth) || 0)}
+        this.screenWidth = window.innerWidth - widthOfSidebar;
         this.screenHeight = window.innerHeight;
         this.timestep = 100;
         this.captureKill = "capture";
         this.gameMode = "FFA";
-        this.gameOver = false;
+        this._gameStarted = false;
+        this._gameOver = false;
+        this.gameTimestepId = "";
         this.allItems = [];
         this.allPapers = [];
         this.allRocks = [];
@@ -22,6 +27,19 @@ const myData = class {
         this.allTerrain = [];
         this.distance = 8;
         this.spedUp = false;
+        this.mouseX = this.screenWidth / 2;
+        this.mouseY = this.screenHeight / 2;
+        this.mouseInWindow = true;
+        document.addEventListener('mousemove', (event) => {
+            this.mouseInWindow = true;
+            this.mouseX = event.clientX;
+            this.mouseY = event.clientY;
+        });
+        document.addEventListener('mouseout', () => {
+            this.mouseInWindow = false;
+            this.mouseX = data.screenWidth / 2;
+            this.mouseY = data.screenHeight / 2;
+        });
     }
 
     get distance() {
@@ -35,7 +53,41 @@ const myData = class {
             });
         }
     }
+
+    get gameOver() {
+        return this._gameOver;
+    }
+    set gameOver(value) {
+        this._gameOver = value;
+        if (value === true) {
+            clearInterval(this.gameTimestepId);
+        }
+    }
+
+    get gameStarted() {
+        return this._gameStarted;
+    }
+    set gameStarted(value) {
+        this._gameStarted = value;
+        if (value === true) {
+            this.sidebar.style.display = 'block';
+        }
+    }
+
+    reset = () => {
+        this.field.innerHTML = "";
+        const newData = new myData();
+        for (let property in newData) {
+            console.log(`before property: ${property} ${this[property]} = ${newData[property]};`)
+            if (newData.hasOwnProperty(property)) {
+                this[property] = newData[property];
+            }
+            console.log(`after property: ${property} ${this[property]} = ${newData[property]};`)
+        }
+        console.log(this);
+    }
+
 }
 
-export const data = new myData();
+export let data = new myData();
 

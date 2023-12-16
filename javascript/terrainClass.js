@@ -22,8 +22,8 @@ export const terrainClass = class {
         data.allTerrain.push(this);
         data.field.appendChild(this.element);
         this.center = document.createElement('div');
-        this.center.style.height = `$4px`;
-        this.center.style.width = `$4px`;
+        this.center.style.height = `4px`;
+        this.center.style.width = `4px`;
         this.center.style.top = `${this._y}px`;
         this.center.style.left = `${this._x}px`;
         this.center.style.position = "absolute";
