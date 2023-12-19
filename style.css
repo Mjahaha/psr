@@ -11,7 +11,7 @@ Blue: #000AE0
 
 body {
     font-family: 'Luckiest Guy', cursive;
-    background-image: url("/images/MenuBackground.png");
+    background-image: url("./images/MenuBackground.png");
     background-position: center;
     backdrop-filter: blur(10px);
     width: 100vw;

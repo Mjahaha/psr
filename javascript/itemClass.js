@@ -445,7 +445,7 @@ export const itemClass = class {
 
             //check if the distance is less than the radius of the terrain
             const intersection = distance < terrain.radius;
-            return intersection;
+            return intersection;    //Boolean
         }
 
         //find the shorts path around an intersecting terrain by finding the left and right paths, and finding the 
@@ -506,7 +506,7 @@ export const itemClass = class {
         }
 
         //visualisePathing creates dots between two points on the map
-        const visualisePathing = (pathTarget, distanceAway, startCoordObjVP) => { 
+        const visualisePathingBetweenTwoPoints = (pathTarget, distanceAway, startCoordObjVP) => { 
             let angle = this.getDirection(pathTarget, startCoordObjVP) + 180;
             let distanceToTravelEachStep = 40;
             const distanceToTravelEachStepX = distanceToTravelEachStep * Math.cos(angle * Math.PI / 180);
@@ -552,7 +552,7 @@ export const itemClass = class {
                     distanceToNextPoint = Math.sqrt(Math.pow(targetToPathToEPV.x - this.x, 2) + Math.pow(targetToPathToEPV.y - this.y, 2));
                 }
                 //console.log(`target coords are ${targetToPathToEPV.x}, ${targetToPathToEPV.y}, distance is ${distanceToNextPoint} and startCoords are ${startCoords.x}, ${startCoords.y}`)
-                visualisePathing(targetToPathTo, distanceToNextPoint, startCoords);
+                visualisePathingBetweenTwoPoints(targetToPathTo, distanceToNextPoint, startCoords);
                 return; 
             }
 
@@ -568,9 +568,10 @@ export const itemClass = class {
 
             //visual drawing code
             distanceToNextPoint = Math.sqrt(Math.pow(nextPoint.x - startingCoordsOfThisRun.x, 2) + Math.pow(nextPoint.y - startingCoordsOfThisRun.y, 2));
-            visualisePathing(nextPoint, distanceToNextPoint, startCoords); 
+            visualisePathingBetweenTwoPoints(nextPoint, distanceToNextPoint, startCoords); 
             executePathingVisual(targetToPathToEPV, nextPoint);
         }
+
 
         executePathingVisual(targetToPathTo);
     }
