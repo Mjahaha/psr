@@ -69,7 +69,7 @@ export const mainMenu = () => {
     data.stopButton.style.display = "none";
     resetData();
     data.startDetails.innerHTML = `
-    <h1>Rock, Paper, Scissors Battle Royale</h1>
+    <h1>Welcome to<br>Rock, Paper, Scissors Battle Royale!</h1>
     <form>
         <input id="campaign" type="button" value="Campaign">
         <br>
@@ -82,17 +82,13 @@ export const mainMenu = () => {
         window.location.href = "./test.html";
     });
     //adds a listener to the skirmish button that executes setUpSkirmishDetails
-    document.getElementById('skirmish').addEventListener("click", () => {
-        setUpSkirmishDetails();
-    });
+    document.getElementById('skirmish').addEventListener("click", setUpSkirmishDetails);
     //gets credits button to work 
     document.getElementById('credits').addEventListener("click", () => {
         data.startDetails.innerHTML = `
         <img src="images/credits.jpg" style="position: absolute; top: 100px;">
         <input id="mainMenu" type="submit" value="mainMenu" style="z-index: 3; position: absolute; top: 100px;">`;
-        document.getElementById('mainMenu').addEventListener("click", () => {
-            mainMenu();
-        });
+        document.getElementById('mainMenu').addEventListener("click", mainMenu);
     });
 }
 
@@ -100,7 +96,7 @@ export const mainMenu = () => {
 export const setUpSkirmishDetails = () => {
     //adds the start details to the DOM
     data.startDetails.innerHTML = `
-    <h1>Welcome to<br>Rock, Paper, Scissors Battle Royale!</h1>
+    <h1>Welcome to<br>Skirmish Mode!</h1>
     <form>
         <label for="num">How many of each item should we spawn?</label>
         <input type="number" id="num" name="num" min="1" max="90" value="5">
@@ -147,7 +143,7 @@ export const setUpSkirmishDetails = () => {
         if (data.gameMode === "FFA") {
             populateFieldClassic(num);
         } else {
-            populateFieldTeams(num); 
+            populateFieldTeamsRand(num); 
         }
     });
 
@@ -167,7 +163,7 @@ const sendItemsToField = (num, functionToAssignItemPos, functionToCreateItems) =
 
         //if this isnt the first run, moves the coords of the previous item to get transition effect
         //if you don't do it after the setInterval timer the transition doesn't work
-        if (data.allItems.length > 0) {     
+        if (data.allItems.length > 0) { 
             functionToAssignItemPos(data.allItems[data.allItems.length - 1]);
         }
 
@@ -219,20 +215,29 @@ export const populateFieldClassic = (num) => {
 }
 
 //this function populates the field with 'num' of items on each team 
-export const populateFieldTeams = (num) => {
-    for (let i = 0; i < 2 * num; i++) {
-        let whichItem = i % 3;
-        let itemX = Math.random() * data.screenWidth * 0.4;
+export const populateFieldTeamsRand = (num) => {
+
+    const sendItemsToRandomPosition = (itemToSend) => {
+        let itemX = Math.random() * data.screenWidth; 
         let itemY = Math.random() * data.screenHeight;
+
+            itemToSend.x = itemX; 
+            itemToSend.y = itemY; 
+    }
+
+    const createAnEqualNumberOfTeamItems = (i, argSpecificsForItem) => {
+        let whichItem = i % 3;
         let teamClass = "blue";
         if (i % 2 === 0) {
-            itemX += data.screenWidth * 0.6;
+            //itemX += data.screenWidth * 0.6;
             teamClass = "red";
         }
-        if (whichItem === 0) { new itemClass("scissors", teamClass) }
-        else if (whichItem === 1) { new itemClass("rock", teamClass) }
-        else { new itemClass("paper", teamClass) }
+        if (whichItem === 0) { new itemClass("scissors", teamClass, argSpecificsForItem) }
+        else if (whichItem === 1) { new itemClass("rock", teamClass, argSpecificsForItem) }
+        else { new itemClass("paper", teamClass, argSpecificsForItem) }
     }
+
+    sendItemsToField(num, sendItemsToRandomPosition, createAnEqualNumberOfTeamItems);
     
 }
 
@@ -250,7 +255,9 @@ export const updateSidebar = () => {
         dataToPopulateSidebar.map(itemInSidebar => {
             if (itemInSidebar.type === thisType && itemInSidebar.team === thisTeam) {
                 foundIt = true;
-                itemInSidebar.count += 1;
+                if (item.alive === true) {
+                    itemInSidebar.count += 1;
+                }
             }
         });
         if (foundIt === false) {
