@@ -5,6 +5,7 @@ export const myData = class {
         this.field = document.getElementById('theField');
         this.startDetails = document.getElementById('startDetails');
         this.sidebar = document.getElementById('sidebar');
+        this.stopButton = document.getElementById('stopBattle');
         let widthOfSidebar;
         if (this.sidebar.style.display = 'none') {widthOfSidebar = 0} 
         else {widthOfSidebar = ((this.sidebar && this.sidebar.offsetWidth) || 0)}
@@ -73,21 +74,10 @@ export const myData = class {
             this.sidebar.style.display = 'block';
         }
     }
-
-    reset = () => {
-        this.field.innerHTML = "";
-        const newData = new myData();
-        for (let property in newData) {
-            console.log(`before property: ${property} ${this[property]} = ${newData[property]};`)
-            if (newData.hasOwnProperty(property)) {
-                this[property] = newData[property];
-            }
-            console.log(`after property: ${property} ${this[property]} = ${newData[property]};`)
-        }
-        console.log(this);
-    }
-
 }
 
 export let data = new myData();
 
+export const resetData = () => {
+    data = new myData();
+}

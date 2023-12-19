@@ -1,4 +1,4 @@
-import { data } from "./data.js";
+import { data, myData, resetData } from "./data.js";
 import { itemClass } from "./itemClass.js";
 
 //this function populates the item display box on the skirmish screen to show the correct number of items
@@ -64,7 +64,10 @@ const runGameTimestepFunction = () => {
 }
 
 export const mainMenu = () => {
-    data.reset();
+    data.field.innerHTML = "";
+    data.sidebar.innerHTML = "";
+    data.stopButton.style.display = "none";
+    resetData();
     data.startDetails.innerHTML = `
     <h1>Rock, Paper, Scissors Battle Royale</h1>
     <form>
@@ -140,7 +143,7 @@ export const setUpSkirmishDetails = () => {
         data.gameStarted = true;
         data.startDetails.innerHTML = "";
         updateSidebar();
-        document.getElementById('stopBattle').style.display = "block";
+        data.stopButton.style.display = "block";
         if (data.gameMode === "FFA") {
             populateFieldClassic(num);
         } else {
@@ -283,3 +286,4 @@ export const updateSidebar = () => {
     const content = greenDiv + unalignedDiv + redDiv + blueDiv;
     data.sidebar.innerHTML = content;
 }
+
