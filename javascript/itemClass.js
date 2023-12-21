@@ -139,7 +139,7 @@ export const itemClass = class {
         this.element.classList.add(newType);
         this._type = newType;
         this.setArrays();   
-        this.getNearestPredPreySame();     
+        this.getNearestItemsAndTerrain();     
      }
 
     get team() { return this._team; }
@@ -219,15 +219,19 @@ export const itemClass = class {
     } 
 
     //determines who should be chased and who should be run from
-    getNearestPredPreySame() {
-        let chaseTargetList;
-        let sameTargetList;
+    getNearestItemsAndTerrain() {
+        //initialise variable
+        let chaseTargetList; 
+        let sameTargetList; 
         this.nearestPredatorDistance = 100000;
         this.nearestPreyDistance = 100000;
         this.nearestSameDistance = 100000;
+        this.nearestTerrainDistance = 100000;
         this.nearestPredator = null;
         this.nearestPrey = null;
         this.nearestSame = null;
+        this.nearestTerrain = null;
+        //define chaseTargetList and sameTargetList
         if(this.team == "unaligned") {
             chaseTargetList = [...this.preyTypeArray, ...this.predatorTypeArray];
             sameTargetList = [...this.typeArray];
@@ -238,11 +242,38 @@ export const itemClass = class {
             if (this.team === "blue") { sameTargetList = [...new Set([...this.typeArray, ...data.allBlue])]; }
             else if (this.team === "red") { sameTargetList = [...new Set([...this.typeArray, ...data.allRed])]; }
             else if (this.team === "green") { sameTargetList = [...new Set([...this.typeArray, ...data.allGreen])]; }
-            else {sameTargetList = this.typeArray}
+            else { sameTargetList = this.typeArray }
             //console.log(`this is ${this.id} ${this.team} ${this.type} and its chaseTargetList is ${chaseTargetList.join(', ')} and its sameTargetList is ${sameTargetList.join(', ')}`);
         }
+
+        //loop through terrain to find closest terrain
+        for (let i = 0; i < data.allTerrain.length; i++) {
+            let terrainX = data.allTerrain[i].x;
+            let terrainY = data.allTerrain[i].y;
+            let distance = Math.sqrt(Math.pow(terrainX - this.x, 2) + Math.pow(terrainY - this.y, 2));
+            if (distance < this.nearestTerrainDistance) {
+                this.nearestTerrainDistance = distance;
+                this.nearestTerrain = data.allTerrain[i].id;
+            }
+        }
+    
+        //loop through targets of the same class in sameTargetList to find closest same
+        for (let i = 0; i < sameTargetList.length; i++) {
+            let targetX = data.allItems[sameTargetList[i]].x;
+            let targetY = data.allItems[sameTargetList[i]].y; 
+            let distance = Math.sqrt(Math.pow(targetX - this.x, 2) + Math.pow(targetY - this.y, 2));
+            let targetClass = data.allItems[sameTargetList[i]].type;
+            
+            if (sameTargetList[i] === this.id) { continue; }
+            if (targetClass === this.type) {
+                if (distance < this.nearestSameDistance) {
+                    this.nearestSameDistance = distance; 
+                    this.nearestSame = sameTargetList[i]; 
+                }
+            }         
+        }
+
         if (!chaseTargetList) { return; }
-        
         //loop through predators and prey in chaseTargetList to find closest target
         for (let i = 0; i < chaseTargetList.length; i++) {
             let targetX = data.allItems[chaseTargetList[i]].x;
@@ -266,28 +297,12 @@ export const itemClass = class {
                 console.log('no prey or predator found');
             }
         }     
-    
-        //loop through targets of the same class in sameTargetList to find closest same
-        for (let i = 0; i < sameTargetList.length; i++) {
-            let targetX = data.allItems[sameTargetList[i]].x;
-            let targetY = data.allItems[sameTargetList[i]].y; 
-            let distance = Math.sqrt(Math.pow(targetX - this.x, 2) + Math.pow(targetY - this.y, 2));
-            let targetClass = data.allItems[sameTargetList[i]].type;
-            
-            if (sameTargetList[i] === this.id) { continue; }
-            if (targetClass === this.type) {
-                if (distance < this.nearestSameDistance) {
-                    this.nearestSameDistance = distance; 
-                    this.nearestSame = sameTargetList[i]; 
-                }
-            }         
-        }
         //console.log('nearestPredatorDistance is ' + this.nearestPredatorDistance);
         //console.log('nearestPreyDistance is ' + this.nearestPreyDistance);
-        //console.log('nearestSameDistance is ' + this.nearestSameDistance);
+       // console.log(`id:${this.id}, nearestSame is ${this.nearestSame}, nearestSameDistance is ${this.nearestSameDistance}`);
     }
 
-    getDirection(target,startCoordObjGD) {    //returns the angle to travel. Taking an ID for items, or a JSON with an x and y property
+    getDirection(target, startCoordObjGD) {    //returns the angle to travel. Taking an ID for items, or a JSON with an x and y property
         //finding the targets X and Ys
         let targetX, targetY;
         if (typeof target == "object" || typeof target == "function") {
@@ -309,7 +324,7 @@ export const itemClass = class {
             startY = startCoordObjGD.y;
         }
         
-        let angle = Math.atan2(startY - targetY, startX - targetX) * 180 / Math.PI;
+        let angle = Math.atan2(targetY - startY, targetX - startX) * 180 / Math.PI;
         return angle;
     }
 
@@ -327,13 +342,13 @@ export const itemClass = class {
             this.topLeftX + this.width > targetX &&
             this.topLeftY < targetY + targetHeight &&
             this.topLeftY + this.height > targetY) { 
-                this.collisionAction(targetId);
+                this.collisionActionItem(targetId);
                 return true; 
             }
         else { return false; }
     }
 
-    collisionAction(targetId) {
+    collisionActionItem(targetId) {
         if (targetId == null) { return false; }
         updateSidebar();   //keep sidebar stats up to date
         //console.log(`collision between ${this.id} and ${targetId}`);
@@ -355,7 +370,7 @@ export const itemClass = class {
         
         //actions for if item is colliding with a same item
         if (data.allItems[targetId].type == this.type || data.allItems[targetId].team == this.team) {
-            const angle = this.getDirection(this.nearestSame);
+            const angle = 180 + this.getDirection(this.nearestSame);    //180 because we move away from sames
             const moveX = this.speed * Math.cos(angle * Math.PI / 180);
             const moveY = this.speed * Math.sin(angle * Math.PI / 180);
             this.topLeftX += moveX;
@@ -423,14 +438,30 @@ export const itemClass = class {
         return true;
     }
 
+    collisionActionTerrain(targetId) {
+        
+        //actions for if item is colliding with a terrain
+        if (data.allTerrain[targetId]) {
+            const angle = 180 + this.getDirection(this.nearestTerrain);    //180 because we move away from terrain
+            const moveX = this.speed * Math.cos(angle * Math.PI / 180);
+            const moveY = this.speed * Math.sin(angle * Math.PI / 180);
+            this.topLeftX += moveX;
+            this.topLeftY += moveY;
+        }
+    }
+
     pathing() {
-        this.getNearestPredPreySame();
+        this.getNearestItemsAndTerrain();
         let targetToPathTo = data.allItems[this.nearestPrey];
         let executePathingVisualCounter = 0;    //the executePathingVisualisation function uses recursion, this is the 
                                                 //counter that stops it from going on forever
 
         //checks if a straight line path between two points intersects with a particular terrain
         const doesStraightLinePathIntersectTerrain = (pathTarget, terrain, startCoordsObjDSLPIT) => {
+            
+            //exits if there is not pathTarget
+            if (!pathTarget) { return false; }
+
             //get relevant coords for intersection formula
             const thisX = (startCoordsObjDSLPIT && startCoordsObjDSLPIT.x) || this.x; 
             const thisY = (startCoordsObjDSLPIT && startCoordsObjDSLPIT.y) || this.y;
@@ -493,6 +524,7 @@ export const itemClass = class {
 
             let closestIntersectingTerrainId = null;
             let distanceToClosestIntersectingTerrain = 100000;
+            
             data.allTerrain.forEach(terrain => {
                 const thisDistance = Math.sqrt(Math.pow(terrain.x - startingCoordsOfThisRun.x, 2) + Math.pow(terrain.y - startingCoordsOfThisRun.y, 2));
                 const intersects = doesStraightLinePathIntersectTerrain(targetToCheck, terrain, startingCoordsOfThisRun);
@@ -572,25 +604,54 @@ export const itemClass = class {
             executePathingVisual(targetToPathToEPV, nextPoint);
         }
 
+        
+        //executePathingVisual(targetToPathTo);
 
-        executePathingVisual(targetToPathTo);
+        //creates a function that returns the angle to travel around any terrain
+        const angleToTravel = () => {
+            //find the closest terrain in the way of the target and returns false if there is none
+            const closestTerrainInTheWay = findClosestTerrainInTheWay(targetToPathTo);
+            //console.log(closestTerrainInTheWay)
+            if (closestTerrainInTheWay === false) { 
+                //console.log(`no terrain in the way of ${this.id} ${this.team} ${this.type}`);
+                return this.getDirection(targetToPathTo.id); 
+            }
+            //find the shortest path around the terrain
+            const shortestPath = shortestPathAroundTerrain(closestTerrainInTheWay.terrain);
+            //console.log(shortestPath)
+            //find the angle to travel to get to the shortest path
+            const angle = this.getDirection(shortestPath);  
+            console.log(angle);
+            return angle;
+        }
+
+        return angleToTravel();
     }
 
     moveItem() {
-        this.getNearestPredPreySame();
+        this.getNearestItemsAndTerrain();
         //if pred, prey or same are null, then console log
         //console.log(`for ${this.id} ${this.team} ${this.type}, the nearestPredator is ${this.nearestPredator} and the nearestPrey is ${this.nearestPrey} and the nearestSame is ${this.nearestSame}`);
         
         //determine if the item is moving to predator or prey
         let target;
         let angle = 0;
-        if (this.nearestPredatorDistance < this.nearestPreyDistance) {
-            target = this.nearestPredator; 
-            angle += this.getDirection(target);;
-        } 
-        else { 
-            target = this.nearestPrey; 
-            angle += 180 + this.getDirection(target);
+        try {
+            
+            if (this.nearestPredatorDistance < this.nearestPreyDistance) {
+                target = this.nearestPredator; 
+                //console.log(`pathing is ${this.pathing()} while getDirectionGives ${this.getDirection(target)}`)
+                //angle += this.pathing();
+                angle += this.getDirection(target) + 180;
+
+            } 
+            else { 
+                target = this.nearestPrey; 
+                //angle += 180 + this.getDirection(target);
+                angle += this.pathing();                
+            }
+        } catch (error) {
+            throw new Error(`The id is ${this.id}\nNearest Prey: id ${this.nearestPrey}, distance ${this.nearestPreyDistance}\nNearest Predator: id ${this.nearestPredator}, distance ${this.nearestPredatorDistance}\nNearest Same: id ${this.nearestSame}, distance ${this.nearestSameDistance}\n\n${error}`);
         }
     
         //move the the right distance at the right angle to move toward nearest target
@@ -603,5 +664,6 @@ export const itemClass = class {
         this.collisionDetection(this.nearestPredator);
         this.collisionDetection(this.nearestPrey);
         this.collisionDetection(this.nearestSame);
+        this.collisionDetection(this.nearestTerrain);
     }
 }

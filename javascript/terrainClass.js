@@ -10,7 +10,9 @@ export const terrainClass = class {
         this._y = (specifics && specifics.y) || Math.random() * (data.screenHeight - this.radius * 2);
         this.topLeftX = this.x - this.radius;
         this.topLeftY = this.y - this.radius;
+        //div element details
         this.element = document.createElement('div');
+        this.element.id = `T${this.id}`;
         this.element.classList.add('terrain', type);
         this.element.style.height = `${this.radius * 2}px`;
         this.element.style.width = `${this.radius * 2}px`;
