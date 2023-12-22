@@ -71,7 +71,7 @@ export const mainMenu = () => {
     data.startDetails.innerHTML = `
     <h1>Welcome to<br>Rock, Paper, Scissors Battle Royale!</h1>
     <form>
-        <input id="campaign" type="button" value="Campaign">
+        <input id="campaign" type="button" value="Testing">
         <br>
         <input id="skirmish" type="submit" value="Skirmish">        
         <br>
