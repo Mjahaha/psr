@@ -42,9 +42,9 @@ export const itemClass = class {
         if (this.team === "green") { data.allGreen.push(this.id); }
         //adds a listener to element on click that does a console log
         this.element.addEventListener('click', (event) => {
-            console.log(this); console.log(data);
-            this.pathing();
-            this.createDotForTesting(this.x, this.y);
+            console.log(this); 
+            console.log(data);
+            console.log(`the collisionDetectionTerrain returns: ${this.collisionDetectionTerrain(this.nearestTerrain)}`);
         });
         data.field.appendChild(this.element);
     }
@@ -246,6 +246,7 @@ export const itemClass = class {
             //console.log(`this is ${this.id} ${this.team} ${this.type} and its chaseTargetList is ${chaseTargetList.join(', ')} and its sameTargetList is ${sameTargetList.join(', ')}`);
         }
 
+        
         //loop through terrain to find closest terrain
         for (let i = 0; i < data.allTerrain.length; i++) {
             let terrainX = data.allTerrain[i].x;
@@ -256,6 +257,7 @@ export const itemClass = class {
                 this.nearestTerrain = data.allTerrain[i].id;
             }
         }
+        
     
         //loop through targets of the same class in sameTargetList to find closest same
         for (let i = 0; i < sameTargetList.length; i++) {
@@ -328,10 +330,11 @@ export const itemClass = class {
         return angle;
     }
 
-    collisionDetection(targetId) {
+    //checks if one item is colliding with another, returning a boolean and executing collisionActionItem if true
+    collisionDetectionItem(targetId) {
 
         if (targetId == null || targetId == this.id) { return false; }
-    
+        
         let targetX = data.allItems[targetId].topLeftX;
         let targetY = data.allItems[targetId].topLeftY;
         let targetWidth = data.allItems[targetId].width;
@@ -347,6 +350,59 @@ export const itemClass = class {
             }
         else { return false; }
     }
+
+    //checks if one item is colliding with a terrain, returning a boolean and executing collisionActionTerrain if true
+    /*
+    collisionDetectionTerrain(terrainId) {
+
+        if (terrainId == null) { return false; }
+
+        //checks each corner of the square to see if it is within the radius of the circle
+        //returns true if any corner is within the radius of the circle else false
+        if (data.allTerrain[terrainId].type == "circle") {
+            const targetRadius = data.allTerrain[terrainId].radius; 
+            const checkIfPointIsWithinCircle = (pointX, pointY) => {
+                const distance = Math.sqrt(Math.pow(pointX - data.allTerrain[terrainId].x, 2) + Math.pow(pointY - data.allTerrain[terrainId].y, 2));
+                //console logs distance variables
+                
+                return distance < targetRadius; //returns true of the point is within the radius of the circular terrain
+            }
+
+            let thisX, thisY;
+            //checks top left corner
+            thisX = this.topLeftX; 
+            thisY = this.topLeftY;
+            if (checkIfPointIsWithinCircle(thisX, thisY)) { 
+                this.collisionActionTerrain(terrainId);
+                return true;
+            }
+            //checks top right corner
+            thisX = this.topLeftX;
+            thisY = this.topLeftY + this.width;
+            if (checkIfPointIsWithinCircle(thisX, thisY)) { 
+                this.collisionActionTerrain(terrainId);
+                return true; 
+            }
+            //checks bottom left corner
+            thisX = this.topLeftX + this.height;
+            thisY = this.topLeftY;
+            if (checkIfPointIsWithinCircle(thisX, thisY)) { 
+                this.collisionActionTerrain(terrainId);
+                return true; 
+            }
+            //checks bottom right corner
+            thisX = this.topLeftX + this.height;
+            thisY = this.topLeftY + this.width;
+            if (checkIfPointIsWithinCircle(thisX, thisY)) { 
+                this.collisionActionTerrain(terrainId);
+                return true; 
+            }
+            
+            //console logs all variable
+            //console.log(`targetRadius is ${targetRadius}, this.x is ${this.x}, this.y is ${this.y}, `);
+            return false;
+        }
+    } */
 
     collisionActionItem(targetId) {
         if (targetId == null) { return false; }
@@ -441,7 +497,7 @@ export const itemClass = class {
     collisionActionTerrain(targetId) {
         
         //actions for if item is colliding with a terrain
-        if (data.allTerrain[targetId]) {
+        if (data.allTerrain[targetId].type === "circle") {
             const angle = 180 + this.getDirection(this.nearestTerrain);    //180 because we move away from terrain
             const moveX = this.speed * Math.cos(angle * Math.PI / 180);
             const moveY = this.speed * Math.sin(angle * Math.PI / 180);
@@ -489,20 +545,21 @@ export const itemClass = class {
             }
             //general variables
             const terrainX = terrain.x, terrainY = terrain.y;
+            const howFarPastTerrainToGo = Math.max(this.height, this.width) * 0.9;  
             const angleToTerrain = this.getDirection({x: terrainX, y: terrainY}, startCoordsObjSPAT);
             const angleToTarget = this.getDirection(targetToPathTo, startCoordsObjSPAT);
 
             //variables storing info about the left hand path
             const perpendicularAngleLeft = angleToTerrain + 90;
-            const leftX = terrainX + terrain.radius * Math.cos(perpendicularAngleLeft * Math.PI / 180) * 1.2;
-            const leftY = terrainY + terrain.radius * Math.sin(perpendicularAngleLeft * Math.PI / 180) * 1.2;
+            const leftX = terrainX + (terrain.radius + howFarPastTerrainToGo) * Math.cos(perpendicularAngleLeft * Math.PI / 180);
+            const leftY = terrainY + (terrain.radius + howFarPastTerrainToGo) * Math.sin(perpendicularAngleLeft * Math.PI / 180);
             const leftAngle = this.getDirection({x: leftX, y: leftY}, startCoordsObjSPAT);
             const leftAngleDiff = angleDiffFunction(angleToTarget, leftAngle);
             
             //variables storing info about the right hand path
             const perpendicularAngleRight = angleToTerrain - 90;
-            const rightX = terrainX + terrain.radius * Math.cos(perpendicularAngleRight * Math.PI / 180) * 1.2;
-            const rightY = terrainY + terrain.radius * Math.sin(perpendicularAngleRight * Math.PI / 180) * 1.2;
+            const rightX = terrainX + (terrain.radius + howFarPastTerrainToGo) * Math.cos(perpendicularAngleRight * Math.PI / 180);
+            const rightY = terrainY + (terrain.radius + howFarPastTerrainToGo) * Math.sin(perpendicularAngleRight * Math.PI / 180);
             const rightAngle = this.getDirection({x: rightX, y: rightY}, startCoordsObjSPAT);
             const rightAngleDiff = angleDiffFunction(angleToTarget, rightAngle);
 
@@ -539,7 +596,7 @@ export const itemClass = class {
 
         //visualisePathing creates dots between two points on the map
         const visualisePathingBetweenTwoPoints = (pathTarget, distanceAway, startCoordObjVP) => { 
-            let angle = this.getDirection(pathTarget, startCoordObjVP) + 180;
+            let angle = this.getDirection(pathTarget, startCoordObjVP);
             let distanceToTravelEachStep = 40;
             const distanceToTravelEachStepX = distanceToTravelEachStep * Math.cos(angle * Math.PI / 180);
             const distanceToTravelEachStepY = distanceToTravelEachStep * Math.sin(angle * Math.PI / 180);
@@ -620,8 +677,10 @@ export const itemClass = class {
             const shortestPath = shortestPathAroundTerrain(closestTerrainInTheWay.terrain);
             //console.log(shortestPath)
             //find the angle to travel to get to the shortest path
+            //calculates the distance between this item and shortest path point
+            const distanceToShortestPath = Math.sqrt(Math.pow(shortestPath.x - this.x, 2) + Math.pow(shortestPath.y - this.y, 2));
+            visualisePathingBetweenTwoPoints(shortestPath, distanceToShortestPath);
             const angle = this.getDirection(shortestPath);  
-            console.log(angle);
             return angle;
         }
 
@@ -629,41 +688,114 @@ export const itemClass = class {
     }
 
     moveItem() {
-        this.getNearestItemsAndTerrain();
-        //if pred, prey or same are null, then console log
-        //console.log(`for ${this.id} ${this.team} ${this.type}, the nearestPredator is ${this.nearestPredator} and the nearestPrey is ${this.nearestPrey} and the nearestSame is ${this.nearestSame}`);
+        this.getNearestItemsAndTerrain();   //looping through all items to find the ones relevant for moving
+        //console.log(`for ${this.id} ${this.team} ${this.type}\n, the nearestPredator is ${this.nearestPredator} and the nearestPrey is ${this.nearestPrey}\n, the nearestPredatorDistance is ${this.nearestPredatorDistance} and the nearestPreyDistance is ${this.nearestPreyDistance}`);
         
         //determine if the item is moving to predator or prey
         let target;
         let angle = 0;
-        try {
-            
-            if (this.nearestPredatorDistance < this.nearestPreyDistance) {
-                target = this.nearestPredator; 
-                //console.log(`pathing is ${this.pathing()} while getDirectionGives ${this.getDirection(target)}`)
-                //angle += this.pathing();
-                angle += this.getDirection(target) + 180;
+        if (this.nearestPredatorDistance < this.nearestPreyDistance) {
+            target = this.nearestPredator; 
+            //console.log(`pathing is ${this.pathing()} while getDirectionGives ${this.getDirection(target)}`)
 
-            } 
-            else { 
-                target = this.nearestPrey; 
-                //angle += 180 + this.getDirection(target);
-                angle += this.pathing();                
-            }
-        } catch (error) {
-            throw new Error(`The id is ${this.id}\nNearest Prey: id ${this.nearestPrey}, distance ${this.nearestPreyDistance}\nNearest Predator: id ${this.nearestPredator}, distance ${this.nearestPredatorDistance}\nNearest Same: id ${this.nearestSame}, distance ${this.nearestSameDistance}\n\n${error}`);
+            //angle += this.pathing();
+            angle += this.getDirection(target) + 180;   //180 because we move away from predators
+
+        } 
+        else { 
+            target = this.nearestPrey; 
+
+            //angle += 180 + this.getDirection(target);
+            angle += this.pathing();                
+            //console.log(`pathing is ${this.pathing()} while getDirectionGives ${this.getDirection(target)}`);
+
         }
     
         //move the the right distance at the right angle to move toward nearest target
         let moveX = this.speed * Math.cos(angle * Math.PI / 180);
         let moveY = this.speed * Math.sin(angle * Math.PI / 180);
+
+        const collisionDetectionTerrain = (terrainId) => {
+
+            if (terrainId == null) { return false; }
+    
+            //checks each corner of the square to see if it is within the radius of the circle
+            //returns true if any corner is within the radius of the circle else false
+            if (data.allTerrain[terrainId].type == "circle") {
+                const targetRadius = data.allTerrain[terrainId].radius; 
+                const circleCenterX = data.allTerrain[terrainId].x;
+                const circleCenterY = data.allTerrain[terrainId].y;
+                
+                const checkIfPointIsWithinCircle = (pointX, pointY) => {
+                    const distance = Math.sqrt(Math.pow(pointX - circleCenterX , 2) + Math.pow(pointY - circleCenterY, 2));
+                    console.log(`distance is ${distance} and targetRadius is ${targetRadius}`);
+                    return distance < targetRadius; //returns true of the point is within the radius of the circular terrain
+                }
+                    
+                const calculateNewPosition = (collisionX, collisionY) => {
+                    // Calculate alpha angle
+                    const alpha = Math.atan2(collisionY - circleCenterY, collisionX - circleCenterX);
+        
+                    // Calculate the theta angle (distance to move along circle perimeter / radius)
+                    const theta = this.speed / targetRadius;
+        
+                    // Calculate new position
+                    console.log(moveX, moveY);
+                    moveX = 0;
+                    moveY = 0;
+                    this.x = circleCenterX + targetRadius * Math.cos(alpha + theta);
+                    this.Y = circleCenterY + targetRadius * Math.sin(alpha + theta);
+                    console.log(moveX, moveY);
+                }
+    
+                let thisX, thisY;
+                //checks top left corner
+                thisX = this.topLeftX; 
+                thisY = this.topLeftY;
+                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
+                    calculateNewPosition(thisX, thisY);
+                    //this.collisionActionTerrain(terrainId);
+                    return true;
+                }
+                //checks top right corner
+                thisX = this.topLeftX;
+                thisY = this.topLeftY + this.width;
+                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
+                    calculateNewPosition(thisX, thisY);
+                    //this.collisionActionTerrain(terrainId);
+                    return true; 
+                }
+                //checks bottom left corner
+                thisX = this.topLeftX + this.height;
+                thisY = this.topLeftY;
+                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
+                    calculateNewPosition(thisX, thisY);
+                    //this.collisionActionTerrain(terrainId);
+                    return true; 
+                }
+                //checks bottom right corner
+                thisX = this.topLeftX + this.height;
+                thisY = this.topLeftY + this.width;
+                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
+                    calculateNewPosition(thisX, thisY);
+                    //this.collisionActionTerrain(terrainId);
+                    return true; 
+                }
+                
+                //console logs all variable
+                //console.log(`targetRadius is ${targetRadius}, this.x is ${this.x}, this.y is ${this.y}, `);
+                return false;
+            }
+        }
+        collisionDetectionTerrain(this.nearestTerrain);
+
         this.x += moveX;
         this.y += moveY;
 
         //check for collisions
-        this.collisionDetection(this.nearestPredator);
-        this.collisionDetection(this.nearestPrey);
-        this.collisionDetection(this.nearestSame);
-        this.collisionDetection(this.nearestTerrain);
+        this.collisionDetectionItem(this.nearestPredator);
+        this.collisionDetectionItem(this.nearestPrey);
+        this.collisionDetectionItem(this.nearestSame);
+        //collisionDetectionTerrain(this.nearestTerrain);
     }
 }

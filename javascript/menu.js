@@ -1,4 +1,5 @@
 import { data, myData, resetData } from "./data.js";
+import { drawCircleToPushItems } from "./controls.js";
 import { itemClass } from "./itemClass.js";
 import { terrainClass } from "./terrainClass.js";
 
@@ -160,6 +161,8 @@ const sendItemsToField = (num, functionToAssignItemPos, functionToCreateItems) =
     let i = 1;
     data.widthOfSidebar = ((data.sidebar && data.sidebar.offsetWidth) || 0);
     data.screenWidth = window.innerWidth - data.widthOfSidebar;
+    document.body.addEventListener('mousedown', drawCircleToPushItems);
+
     const createAnItem = setInterval(() => {
 
         //if this isnt the first run, moves the coords of the previous item to get transition effect

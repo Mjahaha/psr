@@ -7,13 +7,15 @@ import { terrainClass } from "./terrainClass.js";
 //populateFieldClassic(100);
 
 new itemClass("rock", "unaligned", {x: 300, y: 450});
-new itemClass("paper", "unaligned", {x: 1400, y: 450});
-new itemClass("scissors", "unaligned", {x: 300, y: 380});
+new itemClass("paper", "unaligned", {x: 800, y: 450});
+//new itemClass("scissors", "unaligned", {x: 300, y: 380});
 new terrainClass("circle", 100, {x: 650, y: 475});
-new terrainClass("circle", 80, {x: 900, y: 475});
-new terrainClass("circle", 80, {x: 1200, y: 505});
+//new terrainClass("circle", 80, {x: 900, y: 475});
+//new terrainClass("circle", 80, {x: 1200, y: 505});
 
-
+setInterval(() => {
+  data.allItems[1].moveItem();
+}, 500);
 
 /*
 new itemClass("rock", "unaligned", {y: 300, x: 490});
@@ -26,7 +28,7 @@ new terrainClass("circle", 100, {y: 650, x: 475});
 
 
 
-const drawCircleToPushItems = (event) => {
+export const drawCircleToPushItems = (event) => {
   // Store the initial variables starting position
   let startClickX = event.clientX;  //starting position of X coords
   let startClickY = event.clientY;  //starting position of Y coords
@@ -110,6 +112,7 @@ const drawCircleToPushItems = (event) => {
     //adds transition back to all items
     data.allItems.forEach(item => {
       item.element.style.transition = `all ${data.timestep}ms linear`;
+      item.getNearestItemsAndTerrain();
     });
   }
 

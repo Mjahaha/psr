@@ -12,6 +12,7 @@ Types of guys
 - necromancer?
 - sticky, he will be placed down and then the user draws an area, and he will paint that area with stickly glue, and anyone 
 who goes in it slows to 1/3 speed  
+- fear guy, fears everyone when in danger then gets a speed boost, 45 second cooldown? 
 
 Menu changes 
 - make a menu screen

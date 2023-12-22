@@ -21,7 +21,7 @@ export const terrainClass = class {
         this.element.style.position = "absolute";
         this.element.style.borderRadius = "50%";
         this.element.style.border = "3px solid darkBlue";
-        data.allTerrain.push(this);
+        data.allTerrain.push(this); //stores the object in a terrain array
         data.field.appendChild(this.element);
         this.center = document.createElement('div');
         this.center.style.height = `4px`;
@@ -33,6 +33,10 @@ export const terrainClass = class {
         this.center.style.border = "2px solid darkBlue";
         this.center.style.zIndex = "4";
         data.field.appendChild(this.center);
+        //adds a listener to element on click that does a console log
+        this.element.addEventListener('click', (event) => {
+            console.log(this); console.log(data);
+        });
     }
     get x() {
         return this._x;
