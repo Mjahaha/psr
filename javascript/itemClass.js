@@ -245,8 +245,8 @@ export const itemClass = class {
             else { sameTargetList = this.typeArray }
             //console.log(`this is ${this.id} ${this.team} ${this.type} and its chaseTargetList is ${chaseTargetList.join(', ')} and its sameTargetList is ${sameTargetList.join(', ')}`);
         }
+        //console.log(`this is ${this.id} ${this.team} ${this.type} and its chaseTargetList is ${chaseTargetList.join(', ')}\n and its sameTargetList is ${sameTargetList.join(', ')}`);
 
-        
         //loop through terrain to find closest terrain
         for (let i = 0; i < data.allTerrain.length; i++) {
             let terrainX = data.allTerrain[i].x;
@@ -256,8 +256,7 @@ export const itemClass = class {
                 this.nearestTerrainDistance = distance;
                 this.nearestTerrain = data.allTerrain[i].id;
             }
-        }
-        
+        }        
     
         //loop through targets of the same class in sameTargetList to find closest same
         for (let i = 0; i < sameTargetList.length; i++) {
@@ -440,36 +439,44 @@ export const itemClass = class {
             <input type="button" id="return" value="Return"">`;
             document.getElementById('return').addEventListener('click', mainMenu);
             data.gameOver = true;
+            updateSidebar();
         }
         if (data.allPapers.length === 0 && data.allScissors.length === 0) { 
             data.startDetails.innerHTML = `<h1>Rock wins!</h1>
             <input type="button" id="return" value="Return"">`;
             document.getElementById('return').addEventListener('click', mainMenu); 
             data.gameOver = true; 
+            updateSidebar();
         }
         if (data.allScissors.length === 0 && data.allRocks.length === 0) { 
             data.startDetails.innerHTML = `<h1>Paper wins!</h1>
             <input type="button" id="return" value="Return"">`;
             document.getElementById('return').addEventListener('click', mainMenu); 
             data.gameOver = true; 
+            updateSidebar();
+
         }
         if (data.allBlue.length === 0 && data.allRed.length === 0 && data.allUnaligned.length === 0) { 
             data.startDetails.innerHTML = `<h1>Green wins!</h1>
             <input type="button" id="return" value="Return"">`;
             document.getElementById('return').addEventListener('click', mainMenu); 
             data.gameOver = true; 
+            updateSidebar();
         }
         if (data.allRed.length === 0 && data.allGreen.length === 0 && data.allUnaligned.length === 0) { 
             data.startDetails.innerHTML = `<h1>Blue wins!</h1>
             <input type="button" id="return" value="Return"">`;
             document.getElementById('return').addEventListener('click', mainMenu); 
             data.gameOver = true; 
+            updateSidebar();
+
         }
         if (data.allGreen.length === 0 && data.allBlue.length === 0 && data.allUnaligned.length === 0) { 
             data.startDetails.innerHTML = `<h1>Red wins!</h1>
             <input type="button" id="return" value="Return"">`;
             document.getElementById('return').addEventListener('click', mainMenu);
             data.gameOver = true; 
+            updateSidebar();
         }
 
         //Speed up conditions 
@@ -670,7 +677,6 @@ export const itemClass = class {
             const closestTerrainInTheWay = findClosestTerrainInTheWay(targetToPathTo);
             //console.log(closestTerrainInTheWay)
             if (closestTerrainInTheWay === false) { 
-                //console.log(`no terrain in the way of ${this.id} ${this.team} ${this.type}`);
                 return this.getDirection(targetToPathTo.id); 
             }
             //find the shortest path around the terrain
@@ -722,30 +728,68 @@ export const itemClass = class {
             //checks each corner of the square to see if it is within the radius of the circle
             //returns true if any corner is within the radius of the circle else false
             if (data.allTerrain[terrainId].type == "circle") {
-                const targetRadius = data.allTerrain[terrainId].radius; 
-                const circleCenterX = data.allTerrain[terrainId].x;
-                const circleCenterY = data.allTerrain[terrainId].y;
+                //circle constants 
+                const r1 = data.allTerrain[terrainId].radius;
+                const x1 = data.allTerrain[terrainId].x;
+                const y1 = data.allTerrain[terrainId].y;
                 
+                //returns true if the point is within the circle area
                 const checkIfPointIsWithinCircle = (pointX, pointY) => {
-                    const distance = Math.sqrt(Math.pow(pointX - circleCenterX , 2) + Math.pow(pointY - circleCenterY, 2));
-                    console.log(`distance is ${distance} and targetRadius is ${targetRadius}`);
-                    return distance < targetRadius; //returns true of the point is within the radius of the circular terrain
+                    const distance = Math.sqrt(Math.pow(pointX - x1 , 2) + Math.pow(pointY - y1, 2));
+                    //console.log(`distance is ${distance} and targetRadius is ${r1}`);
+                    return distance < r1; //returns true of the point is within the radius of the circular terrain
                 }
-                    
-                const calculateNewPosition = (collisionX, collisionY) => {
-                    // Calculate alpha angle
-                    const alpha = Math.atan2(collisionY - circleCenterY, collisionX - circleCenterX);
-        
-                    // Calculate the theta angle (distance to move along circle perimeter / radius)
-                    const theta = this.speed / targetRadius;
-        
-                    // Calculate new position
-                    console.log(moveX, moveY);
-                    moveX = 0;
-                    moveY = 0;
-                    this.x = circleCenterX + targetRadius * Math.cos(alpha + theta);
-                    this.Y = circleCenterY + targetRadius * Math.sin(alpha + theta);
-                    console.log(moveX, moveY);
+
+                //we can think of the movement of the item as a circle, with the center of the item being its original position
+                //and the diameter of the circle being the distance it moves, so to find where the item moves along the perimeter
+                //of the circle, we can find our two options for each direction using formula of intersection of two circles
+                //circle properties
+                const r2 = this.speed;
+                const x2 = this.x;
+                const y2 = this.y;
+                console.log(`r1 is ${r1}, x1 is ${x1}, y1 is ${y1}`);
+                console.log(`r2 is ${r2}, x2 is ${x2}, y2 is ${y2}`);
+                const calculateNewPosition = () => {
+                    //d is the distance between centers
+                    const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    console.log(`d is ${d}`)
+                    //variables for point equations 
+                    const a = (Math.pow(r2, 2) - Math.pow(r1, 2) + Math.pow(d, 2)) / (2 * d);
+                    const h = Math.sqrt(Math.pow(r1, 2) - Math.pow(a, 2));
+                    console.log(`a is ${a}, h is ${h}`)
+                    //points along the perimeter of the circle
+                    const point1x = x1 + (a / d) * (x2 - x1) + (h / d) * (y2 - y1);
+                    const point1y = y1 + (a / d) * (y2 - y1) - (h / d) * (x2 - x1);
+                    this.createDotForTesting(point1x, point1y, "purple", 6);
+                    const point2x = x1 + (a / d) * (x2 - x1) - (h / d) * (y2 - y1);
+                    const point2y = y1 + (a / d) * (y2 - y1) + (h / d) * (x2 - x1);
+                    this.createDotForTesting(point2x, point2y, "purple", 6);
+                    console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
+
+                    //in order to find which point is best, we find out what has the smallest angle between where it would have
+                    //gone, and both of the points. So we calculate the slope of two lines and find the angles between those
+                    //the "collision points"
+                    const collisionPointX = x2 + moveX;
+                    const collisionPointY = y2 + moveY;
+                    this.createDotForTesting(collisionPointX, collisionPointY, "darkred",6);
+                    //the original points
+                    const originalPointX = this.x;
+                    const originalPointY = this.y;
+                    //slope to the collision points 
+                    const slopeToCollisionPoint = (collisionPointY - originalPointY) / (collisionPointX - originalPointX);
+                    //slope to the two points
+                    const slopeToPoint1 = (point1y - originalPointY) / (point1x - originalPointX);
+                    const slopeToPoint2 = (point2y - originalPointY) / (point2x - originalPointX);
+                    //angles to the two points
+                    const angleToPoint1 = Math.atan((slopeToPoint1 - slopeToCollisionPoint) / (1 + slopeToPoint1 * slopeToCollisionPoint)) * 180 / Math.PI;
+                    const angleToPoint2 = Math.atan((slopeToPoint2 - slopeToCollisionPoint) / (1 + slopeToPoint2 * slopeToCollisionPoint)) * 180 / Math.PI;
+
+                    if (angleToPoint1 < angleToPoint2) {
+                        return {x: point1x, y: point1y};
+                    } else {
+                        return {x: point2x, y: point2y};
+                    }
+    
                 }
     
                 let thisX, thisY;
@@ -753,32 +797,40 @@ export const itemClass = class {
                 thisX = this.topLeftX; 
                 thisY = this.topLeftY;
                 if (checkIfPointIsWithinCircle(thisX, thisY)) { 
-                    calculateNewPosition(thisX, thisY);
-                    //this.collisionActionTerrain(terrainId);
+                    //set this.x and this.y position to the returned point
+                    const newPosition = calculateNewPosition();
+                    this.x = newPosition.x;
+                    this.y = newPosition.y;
+
                     return true;
                 }
                 //checks top right corner
                 thisX = this.topLeftX;
                 thisY = this.topLeftY + this.width;
                 if (checkIfPointIsWithinCircle(thisX, thisY)) { 
-                    calculateNewPosition(thisX, thisY);
-                    //this.collisionActionTerrain(terrainId);
+                    const newPosition = calculateNewPosition();
+                    this.x = newPosition.x;
+                    this.y = newPosition.y;
+
                     return true; 
                 }
                 //checks bottom left corner
                 thisX = this.topLeftX + this.height;
                 thisY = this.topLeftY;
                 if (checkIfPointIsWithinCircle(thisX, thisY)) { 
-                    calculateNewPosition(thisX, thisY);
-                    //this.collisionActionTerrain(terrainId);
+                    const newPosition = calculateNewPosition();
+                    this.x = newPosition.x;
+                    this.y = newPosition.y;
+
                     return true; 
                 }
                 //checks bottom right corner
                 thisX = this.topLeftX + this.height;
                 thisY = this.topLeftY + this.width;
                 if (checkIfPointIsWithinCircle(thisX, thisY)) { 
-                    calculateNewPosition(thisX, thisY);
-                    //this.collisionActionTerrain(terrainId);
+                    const newPosition = calculateNewPosition();
+                    this.x = newPosition.x;
+                    this.y = newPosition.y;
                     return true; 
                 }
                 

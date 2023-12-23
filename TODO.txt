@@ -1,13 +1,12 @@
 General changes 
-- add a HUD for the game that
+- add a HUD for the game that 
   a) shows how many items of each type are in play
   b) gives the user controls to set up field initially
-- add move mousemove listener to data class and then update drawCircle and populateField to reflect this new listener 
 - death pics 
 
 Types of guys
-- add an exemption to taking turns for when you have an animation
-- big eater, gets 10px bigger when he captures, if he gets hit, knocks the other item away 100px and looses a sized
+- big eater, gets 10px bigger when he captures, if he gets hit, knocks the other item away 100px and looses a sized 
+- the archer 
 - mage, fires bullets like on that hyperplex video
 - necromancer?
 - sticky, he will be placed down and then the user draws an area, and he will paint that area with stickly glue, and anyone 
@@ -15,11 +14,12 @@ who goes in it slows to 1/3 speed
 - fear guy, fears everyone when in danger then gets a speed boost, 45 second cooldown? 
 
 Menu changes 
-- make a menu screen
 - make the item counter visual stack the items like playing cards, then add a new line ones it gets to x amount
 
 Teams 
 
+Advanced pathing 
+- See how it goes first 
 
 Efficiency changes
 - use sorted arrays to check bumps, because it only needs to happen based on nearest X + Y up and down, not every "same" item

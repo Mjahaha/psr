@@ -73,7 +73,7 @@ export const mainMenu = () => {
     data.startDetails.innerHTML = `
     <h1>Welcome to<br>Rock, Paper, Scissors Battle Royale!</h1>
     <form>
-        <input id="campaign" type="button" value="Campaign">
+        <input id="campaign" type="button" value="Testing">
         <br>
         <input id="skirmish" type="submit" value="Skirmish">        
         <br>
@@ -197,8 +197,8 @@ const sendItemsToField = (num, functionToAssignItemPos, functionToCreateItems) =
 
 //this function populates the field with 'num' of unaligned items
 export const populateFieldClassic = (num) => {
-    new terrainClass("circle", 100, {x: 650, y: 475});
-    new terrainClass("circle", 100, {x: 1000, y: 475});
+    //new terrainClass("circle", 100, {x: 650, y: 475});
+    //new terrainClass("circle", 100, {x: 1000, y: 475});
 
 
     //function to make the items come from the mouse initially 
