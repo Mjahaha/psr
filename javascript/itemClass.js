@@ -685,7 +685,7 @@ export const itemClass = class {
             //find the angle to travel to get to the shortest path
             //calculates the distance between this item and shortest path point
             const distanceToShortestPath = Math.sqrt(Math.pow(shortestPath.x - this.x, 2) + Math.pow(shortestPath.y - this.y, 2));
-            visualisePathingBetweenTwoPoints(shortestPath, distanceToShortestPath);
+            //visualisePathingBetweenTwoPoints(shortestPath, distanceToShortestPath);
             const angle = this.getDirection(shortestPath);  
             return angle;
         }
@@ -729,7 +729,7 @@ export const itemClass = class {
             //returns true if any corner is within the radius of the circle else false
             if (data.allTerrain[terrainId].type == "circle") {
                 //circle constants 
-                const r1 = data.allTerrain[terrainId].radius;
+                const r1 = data.allTerrain[terrainId].radius + this.speed;
                 const x1 = data.allTerrain[terrainId].x;
                 const y1 = data.allTerrain[terrainId].y;
                 
@@ -747,34 +747,38 @@ export const itemClass = class {
                 const r2 = this.speed;
                 const x2 = this.x;
                 const y2 = this.y;
-                console.log(`r1 is ${r1}, x1 is ${x1}, y1 is ${y1}`);
-                console.log(`r2 is ${r2}, x2 is ${x2}, y2 is ${y2}`);
+                //console.log(`r1 is ${r1}, x1 is ${x1}, y1 is ${y1}`);
+                //console.log(`r2 is ${r2}, x2 is ${x2}, y2 is ${y2}`);
                 const calculateNewPosition = () => {
                     //d is the distance between centers
                     const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-                    console.log(`d is ${d}`)
                     //variables for point equations 
-                    const a = (Math.pow(r2, 2) - Math.pow(r1, 2) + Math.pow(d, 2)) / (2 * d);
+                    const a = (Math.pow(r1, 2) - Math.pow(r2, 2) + Math.pow(d, 2)) / (2 * d);
                     const h = Math.sqrt(Math.pow(r1, 2) - Math.pow(a, 2));
-                    console.log(`a is ${a}, h is ${h}`)
                     //points along the perimeter of the circle
                     const point1x = x1 + (a / d) * (x2 - x1) + (h / d) * (y2 - y1);
                     const point1y = y1 + (a / d) * (y2 - y1) - (h / d) * (x2 - x1);
-                    this.createDotForTesting(point1x, point1y, "purple", 6);
+                    //this.createDotForTesting(point1x, point1y, "purple", 6);
                     const point2x = x1 + (a / d) * (x2 - x1) - (h / d) * (y2 - y1);
                     const point2y = y1 + (a / d) * (y2 - y1) + (h / d) * (x2 - x1);
-                    this.createDotForTesting(point2x, point2y, "purple", 6);
-                    console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
+                    //this.createDotForTesting(point2x, point2y, "purple", 6);
+                    //console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
 
                     //in order to find which point is best, we find out what has the smallest angle between where it would have
                     //gone, and both of the points. So we calculate the slope of two lines and find the angles between those
+
+                    
+
                     //the "collision points"
                     const collisionPointX = x2 + moveX;
                     const collisionPointY = y2 + moveY;
-                    this.createDotForTesting(collisionPointX, collisionPointY, "darkred",6);
+                    //this.createDotForTesting(collisionPointX, collisionPointY, "red",6);
                     //the original points
                     const originalPointX = this.x;
                     const originalPointY = this.y;
+
+                    /*
+                    //this.createDotForTesting(originalPointX, originalPointY, "darkred",6);
                     //slope to the collision points 
                     const slopeToCollisionPoint = (collisionPointY - originalPointY) / (collisionPointX - originalPointX);
                     //slope to the two points
@@ -784,15 +788,59 @@ export const itemClass = class {
                     const angleToPoint1 = Math.atan((slopeToPoint1 - slopeToCollisionPoint) / (1 + slopeToPoint1 * slopeToCollisionPoint)) * 180 / Math.PI;
                     const angleToPoint2 = Math.atan((slopeToPoint2 - slopeToCollisionPoint) / (1 + slopeToPoint2 * slopeToCollisionPoint)) * 180 / Math.PI;
 
-                    if (angleToPoint1 < angleToPoint2) {
+
+                    if (angleToPoint1 > angleToPoint2) {
+                        console.log(`angleToPoint1 is ${angleToPoint1}`)
                         return {x: point1x, y: point1y};
                     } else {
+                        console.log(`angleToPoint2 is ${angleToPoint2}`)
                         return {x: point2x, y: point2y};
+                    }
+
+                    */
+                   // Vector of the original movement
+                    const moveVector = { x: moveX, y: moveY };
+
+                    // Vectors to the intersection points
+                    const vectorToPoint1 = { x: point1x - originalPointX, y: point1y - originalPointY };
+                    const vectorToPoint2 = { x: point2x - originalPointX, y: point2y - originalPointY };
+
+                    // Dot product function
+                    const dotProduct = (v1, v2) => v1.x * v2.x + v1.y * v2.y;
+
+                    // Normalize the vectors to calculate the angle
+                    const norm = (v) => Math.sqrt(v.x * v.x + v.y * v.y);
+
+                    // Calculate the cosine of the angles
+                    const cosAngleToPoint1 = dotProduct(moveVector, vectorToPoint1) / (norm(moveVector) * norm(vectorToPoint1));
+                    const cosAngleToPoint2 = dotProduct(moveVector, vectorToPoint2) / (norm(moveVector) * norm(vectorToPoint2));
+
+                    // Choose the point that forms the smaller angle with the direction of movement
+                    if (cosAngleToPoint1 > cosAngleToPoint2) {
+                        return { x: point1x, y: point1y };
+                    } else {
+                        return { x: point2x, y: point2y };
                     }
     
                 }
     
                 let thisX, thisY;
+                //checks the center for testing
+                thisX = this.x + moveX; 
+                thisY = this.y + moveY;
+                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
+                    //set this.x and this.y position to the returned point
+                    const newPosition = calculateNewPosition();
+                    //console.log(`thisX is ${thisX}, thisY is ${thisY},`)
+                    //console.log(`newPosition is ${newPosition.x}, ${newPosition.y}`)
+                    this.x = newPosition.x;
+                    this.y = newPosition.y;
+                    //console.log(`this.x is ${this.x}, this.y is ${this.y}`)
+
+                    return true;
+                }
+                
+                /*
                 //checks top left corner
                 thisX = this.topLeftX; 
                 thisY = this.topLeftY;
@@ -833,13 +881,16 @@ export const itemClass = class {
                     this.y = newPosition.y;
                     return true; 
                 }
+                */
                 
                 //console logs all variable
                 //console.log(`targetRadius is ${targetRadius}, this.x is ${this.x}, this.y is ${this.y}, `);
                 return false;
             }
         }
-        collisionDetectionTerrain(this.nearestTerrain);
+        const wasInTerrain = collisionDetectionTerrain(this.nearestTerrain);
+
+        if (wasInTerrain) { return; }
 
         this.x += moveX;
         this.y += moveY;

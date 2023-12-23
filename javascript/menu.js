@@ -1,5 +1,5 @@
 import { data, myData, resetData } from "./data.js";
-import { drawCircleToPushItems } from "./controls.js";
+//import { drawCircleToPushItems } from "./controls.js";
 import { itemClass } from "./itemClass.js";
 import { terrainClass } from "./terrainClass.js";
 
@@ -197,7 +197,7 @@ const sendItemsToField = (num, functionToAssignItemPos, functionToCreateItems) =
 
 //this function populates the field with 'num' of unaligned items
 export const populateFieldClassic = (num) => {
-    //new terrainClass("circle", 100, {x: 650, y: 475});
+    new terrainClass("circle", 100, {x: 650, y: 475});
     //new terrainClass("circle", 100, {x: 1000, y: 475});
 
 
