@@ -743,13 +743,19 @@ export const itemClass = class {
                 //we can think of the movement of the item as a circle, with the center of the item being its original position
                 //and the diameter of the circle being the distance it moves, so to find where the item moves along the perimeter
                 //of the circle, we can find our two options for each direction using formula of intersection of two circles
+
                 //circle properties
                 const r2 = this.speed;
                 const x2 = this.x;
                 const y2 = this.y;
-                //console.log(`r1 is ${r1}, x1 is ${x1}, y1 is ${y1}`);
-                //console.log(`r2 is ${r2}, x2 is ${x2}, y2 is ${y2}`);
+
                 const calculateNewPosition = () => {
+
+                    //the original points
+                    const originalPointX = this.x;
+                    const originalPointY = this.y;
+
+
                     //d is the distance between centers
                     const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
                     //variables for point equations 
@@ -762,20 +768,18 @@ export const itemClass = class {
                     const point2x = x1 + (a / d) * (x2 - x1) - (h / d) * (y2 - y1);
                     const point2y = y1 + (a / d) * (y2 - y1) + (h / d) * (x2 - x1);
                     //this.createDotForTesting(point2x, point2y, "purple", 6);
+                    if (isNaN(point1x) || isNaN(point1y) || isNaN(point2x) || isNaN(point2y)) { 
+                        console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
+                        return false;
+                    }
                     //console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
 
-                    //in order to find which point is best, we find out what has the smallest angle between where it would have
-                    //gone, and both of the points. So we calculate the slope of two lines and find the angles between those
-
-                    
-
+                    //in order to find which point is best, we find out the smallest distance between each point and the collision point
                     //the "collision points"
                     const collisionPointX = x2 + moveX;
                     const collisionPointY = y2 + moveY;
                     //this.createDotForTesting(collisionPointX, collisionPointY, "red",6);
-                    //the original points
-                    const originalPointX = this.x;
-                    const originalPointY = this.y;
+                    
 
                     /*
                     //this.createDotForTesting(originalPointX, originalPointY, "darkred",6);
@@ -797,7 +801,7 @@ export const itemClass = class {
                         return {x: point2x, y: point2y};
                     }
 
-                    */
+                   //another way to implement the above code it works but I dont get it
                    // Vector of the original movement
                     const moveVector = { x: moveX, y: moveY };
 
@@ -820,6 +824,15 @@ export const itemClass = class {
                         return { x: point1x, y: point1y };
                     } else {
                         return { x: point2x, y: point2y };
+                    }
+                    */
+                   //the closest point to the collision point is the one we want 
+                    const p1DistancetoCollisionPoint = Math.sqrt(Math.pow(collisionPointX - point1x, 2) + Math.pow(collisionPointY - point1y, 2));
+                    const p2DistancetoCollisionPoint = Math.sqrt(Math.pow(collisionPointX - point2x, 2) + Math.pow(collisionPointY - point2y, 2));
+                    if (p1DistancetoCollisionPoint < p2DistancetoCollisionPoint) {
+                        return {x: point1x, y: point1y};
+                    } else {
+                        return {x: point2x, y: point2y};
                     }
     
                 }
@@ -883,7 +896,6 @@ export const itemClass = class {
                 }
                 */
                 
-                //console logs all variable
                 //console.log(`targetRadius is ${targetRadius}, this.x is ${this.x}, this.y is ${this.y}, `);
                 return false;
             }

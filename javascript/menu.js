@@ -1,5 +1,5 @@
 import { data, myData, resetData } from "./data.js";
-//import { drawCircleToPushItems } from "./controls.js";
+import { drawCircleToPushItems } from "./controls.js";
 import { itemClass } from "./itemClass.js";
 import { terrainClass } from "./terrainClass.js";
 
