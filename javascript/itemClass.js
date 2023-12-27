@@ -727,178 +727,176 @@ export const itemClass = class {
     
             //checks each corner of the square to see if it is within the radius of the circle
             //returns true if any corner is within the radius of the circle else false
-            if (data.allTerrain[terrainId].type == "circle") {
-                //circle constants 
-                const r1 = data.allTerrain[terrainId].radius + this.speed;
-                const x1 = data.allTerrain[terrainId].x;
-                const y1 = data.allTerrain[terrainId].y;
                 
-                //returns true if the point is within the circle area
-                const checkIfPointIsWithinCircle = (pointX, pointY) => {
-                    const distance = Math.sqrt(Math.pow(pointX - x1 , 2) + Math.pow(pointY - y1, 2));
-                    //console.log(`distance is ${distance} and targetRadius is ${r1}`);
-                    return distance < r1; //returns true of the point is within the radius of the circular terrain
-                }
+            
+            
+            //returns true if the point is within the circle area
+            const checkIfPointIsWithinCircle = (pointX, pointY, terrainIdCIPIWC) => {
+                //circle constants 
+                const r1 = data.allTerrain[terrainIdCIPIWC].radius + this.speed;
+                const x1 = data.allTerrain[terrainIdCIPIWC].x;
+                const y1 = data.allTerrain[terrainIdCIPIWC].y;
+                const distance = Math.sqrt(Math.pow(pointX - x1 , 2) + Math.pow(pointY - y1, 2));
+                //console.log(`distance is ${distance} and targetRadius is ${r1}`);
+                return distance < r1; //returns true of the point is within the radius of the circular terrain
+            }
 
-                //we can think of the movement of the item as a circle, with the center of the item being its original position
-                //and the diameter of the circle being the distance it moves, so to find where the item moves along the perimeter
-                //of the circle, we can find our two options for each direction using formula of intersection of two circles
-
+            //we can think of the movement of the item as a circle, with the center of the item being its original position
+            //and the diameter of the circle being the distance it moves, so to find where the item moves along the perimeter
+            //of the circle, we can find our two options for each direction using formula of intersection of two circles
+            const calculateNewPosOnPerimeter = (startingPointX, startingPointY, movedPointX, movedPointY, terrainIdCNPOP) => {
+                //circle constants 
+                const r1 = data.allTerrain[terrainIdCNPOP].radius + this.speed;
+                const x1 = data.allTerrain[terrainIdCNPOP].x;
+                const y1 = data.allTerrain[terrainIdCNPOP].y;
+                //the origipointYnal points
+                const originalPointX = startingPointX;
+                const originalPointY = startingPointY;
                 //circle properties
                 const r2 = this.speed;
-                const x2 = this.x;
-                const y2 = this.y;
-
-                const calculateNewPosition = () => {
-
-                    //the original points
-                    const originalPointX = this.x;
-                    const originalPointY = this.y;
-
-
-                    //d is the distance between centers
-                    const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-                    //variables for point equations 
-                    const a = (Math.pow(r1, 2) - Math.pow(r2, 2) + Math.pow(d, 2)) / (2 * d);
-                    const h = Math.sqrt(Math.pow(r1, 2) - Math.pow(a, 2));
-                    //points along the perimeter of the circle
-                    const point1x = x1 + (a / d) * (x2 - x1) + (h / d) * (y2 - y1);
-                    const point1y = y1 + (a / d) * (y2 - y1) - (h / d) * (x2 - x1);
-                    //this.createDotForTesting(point1x, point1y, "purple", 6);
-                    const point2x = x1 + (a / d) * (x2 - x1) - (h / d) * (y2 - y1);
-                    const point2y = y1 + (a / d) * (y2 - y1) + (h / d) * (x2 - x1);
-                    //this.createDotForTesting(point2x, point2y, "purple", 6);
-                    if (isNaN(point1x) || isNaN(point1y) || isNaN(point2x) || isNaN(point2y)) { 
-                        console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
-                        return false;
-                    }
-                    //console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
-
-                    //in order to find which point is best, we find out the smallest distance between each point and the collision point
-                    //the "collision points"
-                    const collisionPointX = x2 + moveX;
-                    const collisionPointY = y2 + moveY;
-                    //this.createDotForTesting(collisionPointX, collisionPointY, "red",6);
-                    
-
-                    /*
-                    //this.createDotForTesting(originalPointX, originalPointY, "darkred",6);
-                    //slope to the collision points 
-                    const slopeToCollisionPoint = (collisionPointY - originalPointY) / (collisionPointX - originalPointX);
-                    //slope to the two points
-                    const slopeToPoint1 = (point1y - originalPointY) / (point1x - originalPointX);
-                    const slopeToPoint2 = (point2y - originalPointY) / (point2x - originalPointX);
-                    //angles to the two points
-                    const angleToPoint1 = Math.atan((slopeToPoint1 - slopeToCollisionPoint) / (1 + slopeToPoint1 * slopeToCollisionPoint)) * 180 / Math.PI;
-                    const angleToPoint2 = Math.atan((slopeToPoint2 - slopeToCollisionPoint) / (1 + slopeToPoint2 * slopeToCollisionPoint)) * 180 / Math.PI;
-
-
-                    if (angleToPoint1 > angleToPoint2) {
-                        console.log(`angleToPoint1 is ${angleToPoint1}`)
-                        return {x: point1x, y: point1y};
-                    } else {
-                        console.log(`angleToPoint2 is ${angleToPoint2}`)
-                        return {x: point2x, y: point2y};
-                    }
-
-                   //another way to implement the above code it works but I dont get it
-                   // Vector of the original movement
-                    const moveVector = { x: moveX, y: moveY };
-
-                    // Vectors to the intersection points
-                    const vectorToPoint1 = { x: point1x - originalPointX, y: point1y - originalPointY };
-                    const vectorToPoint2 = { x: point2x - originalPointX, y: point2y - originalPointY };
-
-                    // Dot product function
-                    const dotProduct = (v1, v2) => v1.x * v2.x + v1.y * v2.y;
-
-                    // Normalize the vectors to calculate the angle
-                    const norm = (v) => Math.sqrt(v.x * v.x + v.y * v.y);
-
-                    // Calculate the cosine of the angles
-                    const cosAngleToPoint1 = dotProduct(moveVector, vectorToPoint1) / (norm(moveVector) * norm(vectorToPoint1));
-                    const cosAngleToPoint2 = dotProduct(moveVector, vectorToPoint2) / (norm(moveVector) * norm(vectorToPoint2));
-
-                    // Choose the point that forms the smaller angle with the direction of movement
-                    if (cosAngleToPoint1 > cosAngleToPoint2) {
-                        return { x: point1x, y: point1y };
-                    } else {
-                        return { x: point2x, y: point2y };
-                    }
-                    */
-                   //the closest point to the collision point is the one we want 
-                    const p1DistancetoCollisionPoint = Math.sqrt(Math.pow(collisionPointX - point1x, 2) + Math.pow(collisionPointY - point1y, 2));
-                    const p2DistancetoCollisionPoint = Math.sqrt(Math.pow(collisionPointX - point2x, 2) + Math.pow(collisionPointY - point2y, 2));
-                    if (p1DistancetoCollisionPoint < p2DistancetoCollisionPoint) {
-                        return {x: point1x, y: point1y};
-                    } else {
-                        return {x: point2x, y: point2y};
-                    }
-    
-                }
-    
-                let thisX, thisY;
-                //checks the center for testing
-                thisX = this.x + moveX; 
-                thisY = this.y + moveY;
-                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
-                    //set this.x and this.y position to the returned point
-                    const newPosition = calculateNewPosition();
-                    //console.log(`thisX is ${thisX}, thisY is ${thisY},`)
-                    //console.log(`newPosition is ${newPosition.x}, ${newPosition.y}`)
-                    this.x = newPosition.x;
-                    this.y = newPosition.y;
-                    //console.log(`this.x is ${this.x}, this.y is ${this.y}`)
-
-                    return true;
-                }
+                let x2 = startingPointX;
+                let y2 = startingPointY;
                 
                 /*
-                //checks top left corner
-                thisX = this.topLeftX; 
-                thisY = this.topLeftY;
-                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
-                    //set this.x and this.y position to the returned point
-                    const newPosition = calculateNewPosition();
-                    this.x = newPosition.x;
-                    this.y = newPosition.y;
+                //if original position is within radius move to the edge of the circle
+                if (checkIfPointIsWithinCircle(originalPointX, originalPointY)) 
+                { 
+                    const angleToCenter = this.getDirection({x: x1, y: y1}) + 180; //180 because we move away from the center
+                    //new x position is the diameter of the circle * cos(angleToCenter)
+                    const newX = x1 + r1 * Math.cos(angleToCenter * Math.PI / 180);
+                    //new y position is the diameter of the circle * sin(angleToCenter)
+                    const newY = y1 + r1 * Math.sin(angleToCenter * Math.PI / 180);
+                    //console.log(`newX is ${newX} and newY is ${newY}`);
+                    return {x: newX, y: newY}; 
+                } */
 
-                    return true;
+                //d is the distance between centers
+                const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                //variables for point equations 
+                const a = (Math.pow(r1, 2) - Math.pow(r2, 2) + Math.pow(d, 2)) / (2 * d);
+                const h = Math.sqrt(Math.pow(r1, 2) - Math.pow(a, 2));
+                //if d a or h are NaN then console log
+                if (isNaN(d) || isNaN(a) || isNaN(h)) {
+                    console.log(`r1 is ${r1}, r2 is ${r2}, y1 is ${y1}, y2 is ${y2}, x1 is ${x1}, x2 is ${x2}`);
+                    console.log(`d is ${d}, a is ${a}, h is ${h}`);
                 }
-                //checks top right corner
-                thisX = this.topLeftX;
-                thisY = this.topLeftY + this.width;
-                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
-                    const newPosition = calculateNewPosition();
-                    this.x = newPosition.x;
-                    this.y = newPosition.y;
+                //points along the perimeter of the circle
+                const point1x = x1 + (a / d) * (x2 - x1) + (h / d) * (y2 - y1);
+                const point1y = y1 + (a / d) * (y2 - y1) - (h / d) * (x2 - x1);
+                //this.createDotForTesting(point1x, point1y, "purple", 6);
+                const point2x = x1 + (a / d) * (x2 - x1) - (h / d) * (y2 - y1);
+                const point2y = y1 + (a / d) * (y2 - y1) + (h / d) * (x2 - x1);
+                //this.createDotForTesting(point2x, point2y, "purple", 6);
+                if (isNaN(point1x) || isNaN(point1y) || isNaN(point2x) || isNaN(point2y)) { 
+                    console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
+                    return false;
+                }
+                //console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
 
-                    return true; 
+                //in order to find which point is best, we find out the smallest distance between each point and the collision point
+                //the "collision points"
+                const collisionPointX = x2 + moveX;
+                const collisionPointY = y2 + moveY;
+                //if collision points or original points an Nan then console log
+                if (isNaN(collisionPointX) || isNaN(collisionPointY) || isNaN(originalPointX) || isNaN(originalPointY)) {
+                    console.log(`collisionPointX is ${collisionPointX}, collisionPointY is ${collisionPointY}, originalPointX is ${originalPointX}, originalPointY is ${originalPointY}`);
                 }
-                //checks bottom left corner
-                thisX = this.topLeftX + this.height;
-                thisY = this.topLeftY;
-                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
-                    const newPosition = calculateNewPosition();
-                    this.x = newPosition.x;
-                    this.y = newPosition.y;
 
-                    return true; 
+                //the closest point to the collision point is the one we want 
+                const p1DistancetoCollisionPoint = Math.sqrt(Math.pow(collisionPointX - point1x, 2) + Math.pow(collisionPointY - point1y, 2));
+                const p2DistancetoCollisionPoint = Math.sqrt(Math.pow(collisionPointX - point2x, 2) + Math.pow(collisionPointY - point2y, 2));
+                //if those variables are NaN then console log
+                if (isNaN(p1DistancetoCollisionPoint) || isNaN(p2DistancetoCollisionPoint)) {
+                    console.log(`p1DistancetoCollisionPoint is ${p1DistancetoCollisionPoint}, p2DistancetoCollisionPoint is ${p2DistancetoCollisionPoint}`);
                 }
-                //checks bottom right corner
-                thisX = this.topLeftX + this.height;
-                thisY = this.topLeftY + this.width;
-                if (checkIfPointIsWithinCircle(thisX, thisY)) { 
-                    const newPosition = calculateNewPosition();
-                    this.x = newPosition.x;
-                    this.y = newPosition.y;
-                    return true; 
+                if (p1DistancetoCollisionPoint < p2DistancetoCollisionPoint) {
+                    return {x: point1x, y: point1y};
+                } else {
+                    return {x: point2x, y: point2y};
                 }
-                */
-                
-                //console.log(`targetRadius is ${targetRadius}, this.x is ${this.x}, this.y is ${this.y}, `);
-                return false;
+
             }
+
+            let startingX, startingY, movedX, movedY;
+            //checks the center for testing
+            startingX = this.x; 
+            startingY = this.y;
+            movedX = startingX + moveX;
+            movedY = startingY + moveY;
+            
+            //console.log(`moveX is ${moveX} and moveY is ${moveY} and height is ${this.height} and width is ${this.width}`)
+            if (checkIfPointIsWithinCircle(movedX, movedY, terrainId)) { 
+                //set this.x and this.y position to the returned point
+                const newPosition = calculateNewPosOnPerimeter(startingX, startingY, terrainId);
+                //console.log(`thisX is ${thisX}, thisY is ${thisY},`)
+                //console.log(`newPosition is ${newPosition.x}, ${newPosition.y}`)
+                this.x = newPosition.x;
+                this.y = newPosition.y;
+                //console.log(`this.x is ${this.x}, this.y is ${this.y}`)
+
+                return true;
+            }
+            
+            
+            //checks top left corner
+            startingX = this.topLeftX; 
+            startingY = this.topLeftY;
+            movedX = startingX + moveX;
+            movedY = startingY + moveY;
+            if (checkIfPointIsWithinCircle(movedX, movedY, terrainId)) { 
+                //set this.x and this.y position to the returned point
+                const newPosition = calculateNewPosOnPerimeter(startingX, startingY, movedX, movedY, terrainId);
+                this.topLeftX = newPosition.x;
+                this.topLeftY = newPosition.y;
+
+                return true;
+            }
+            
+            //checks top right corner
+            startingX = this.topLeftX + this.width;
+            startingY = this.topLeftY;
+            movedX = startingX + moveX;
+            movedY = startingY + moveY;
+            if (checkIfPointIsWithinCircle(movedX, movedY, terrainId)) { 
+                const newPosition = calculateNewPosOnPerimeter(startingX, startingY, movedX, movedY, terrainId);
+                this.topLeftX = newPosition.x - this.width;
+                this.topLeftY = newPosition.y;
+
+                return true; 
+            }
+            
+            //checks bottom left corner
+            startingX = this.topLeftX;
+            startingY = this.topLeftY + this.height;
+            movedX = startingX + moveX;
+            movedY = startingY + moveY;
+            if (checkIfPointIsWithinCircle(movedX, movedY, terrainId)) { 
+                const newPosition = calculateNewPosOnPerimeter(startingX, startingY, movedX, movedY, terrainId);
+                this.topLeftX = newPosition.x;
+                this.topLeftY = newPosition.y - this.height;
+
+                return true; 
+            }
+            
+            
+            //checks bottom right corner
+            startingX = this.topLeftX + this.width;
+            startingY = this.topLeftY + this.height;
+            movedX = startingX + moveX;
+            movedY = startingY + moveY;
+            if (checkIfPointIsWithinCircle(movedX, movedY, terrainId)) { 
+                const newPosition = calculateNewPosOnPerimeter(startingX, startingY, movedX, movedY, terrainId);
+                this.topLeftX = newPosition.x - this.width;
+                this.topLeftY = newPosition.y - this.height;
+                
+                return true; 
+            }
+            
+            
+            
+            //console.log(`targetRadius is ${targetRadius}, this.x is ${this.x}, this.y is ${this.y}, `);
+            return false;
+        
         }
         const wasInTerrain = collisionDetectionTerrain(this.nearestTerrain);
 
