@@ -44,7 +44,6 @@ export const itemClass = class {
         this.element.addEventListener('click', (event) => {
             console.log(this); 
             console.log(data);
-            console.log(`the collisionDetectionTerrain returns: ${this.collisionDetectionTerrain(this.nearestTerrain)}`);
         });
         data.field.appendChild(this.element);
     }
@@ -63,15 +62,24 @@ export const itemClass = class {
     get x() { return this._x; }
     set x(newX) {
         if (typeof newX != 'number') { newX = this._x; }
+        if (isNaN(newX)) { 
+            console.log(`cannot set this.x to NaN, id: ${this.id}`)
+            newX = this._x;
+         }
         this._x = newX;
         this.topLeftX = this.x - this.width / 2;
     }
     get y() { return this._y; }
     set y(newY) {
         if (typeof newY != 'number') { newY = this._y; }
+        if (isNaN(newY)) { 
+            console.log(`cannot set this.y to NaN, id: ${this.id}`)
+            newY = this._y;
+         }
         this._y = newY;
         this.topLeftY = this.y - this.height / 2;
     }
+
     get topLeftX() { return this._topLeftX; }
     set topLeftX(newTopLeftX) {
         if (typeof newTopLeftX != 'number') { newTopLeftX = this._topLeftX; }
@@ -88,7 +96,45 @@ export const itemClass = class {
     get topLeftY() { return this._topLeftY; }
     set topLeftY(newTopLeftY) {
         if (typeof newTopLeftY != 'number') { newTopLeftY = this._topLeftY; }
-        this._topLeftY = newTopLeftY;
+
+        //checking if the item is colliding with the nearest terrain
+        const isPointWithTerrain = (checkingX, checkingY) => {
+            if (this.nearestTerrain == null) { return false; }
+            const terrain = data.allTerrain[this.nearestTerrain];
+            const distancetoTerrain = Math.sqrt(Math.pow(checkingX - terrain.x, 2) + Math.pow(checkingY - terrain.y, 2));
+            const distanceToCheck = terrain.radius;
+            return distancetoTerrain < distanceToCheck;
+        }
+
+        //this function returns the new position of the item if it is colliding with a terrain
+        const getNewPositionIfCollidingWithTerrain = () => {
+            const terrain = data.allTerrain[this.nearestTerrain];
+            const angle = 180 + this.getDirection(terrain);    //180 because we move away from terrain
+            const pointX = terrain.x + terrain.radius * Math.cos(angle * Math.PI / 180);
+            const pointY = terrain.y + terrain.radius * Math.sin(angle * Math.PI / 180);
+            return {x: pointX, y: pointY};
+        }
+
+        //checking each corner of the item to see if it is colliding with the nearest terrain
+        if (isPointWithTerrain(this.topLeftX, newTopLeftY)) {   //top left corner
+            const newPosition = getNewPositionIfCollidingWithTerrain();
+            this._topLeftX = newPosition.x;
+            this._topLeftY = newPosition.y;
+        } else if (isPointWithTerrain(this.topLeftX, newTopLeftY + this.height)) { //bottom left corner
+            const newPosition = getNewPositionIfCollidingWithTerrain();
+            this._topLeftX = newPosition.x;
+            this._topLeftY = newPosition.y - this.height;
+        } else if (isPointWithTerrain(this.topLeftX + this.width, newTopLeftY)) { //top right corner
+            const newPosition = getNewPositionIfCollidingWithTerrain();
+            this._topLeftX = newPosition.x - this.width;
+            this._topLeftY = newPosition.y;
+        } else if (isPointWithTerrain(this.topLeftX + this.width, newTopLeftY + this.height)) { //bottom right corner
+            const newPosition = getNewPositionIfCollidingWithTerrain();
+            this._topLeftX = newPosition.x - this.width;
+            this._topLeftY = newPosition.y - this.height;
+        } else {
+            this._topLeftY = newTopLeftY; 
+        }
 
         //checks if item is out of bounds
         if (this.topLeftY < 0) { this._topLeftY = 0; }
@@ -96,6 +142,9 @@ export const itemClass = class {
 
         this._y = this.topLeftY + this.height / 2;
         this.element.style.top = `${this.topLeftY}px`;
+
+        
+
     }
 
     get alive() { return this._alive; }
@@ -252,6 +301,7 @@ export const itemClass = class {
             let terrainX = data.allTerrain[i].x;
             let terrainY = data.allTerrain[i].y;
             let distance = Math.sqrt(Math.pow(terrainX - this.x, 2) + Math.pow(terrainY - this.y, 2));
+            distance = distance - data.allTerrain[i].radius; //we want the distance to the edge of the terrain
             if (distance < this.nearestTerrainDistance) {
                 this.nearestTerrainDistance = distance;
                 this.nearestTerrain = data.allTerrain[i].id;
@@ -571,8 +621,8 @@ export const itemClass = class {
             const rightAngleDiff = angleDiffFunction(angleToTarget, rightAngle);
 
             //vars for drawing dots to show what way we are going
-            const shortest = leftAngleDiff < rightAngleDiff ? "left" : "right";
-            shortest == "left" ? this.createDotForTesting(leftX, leftY, "green", 10) : this.createDotForTesting(rightX, rightY, "orange", 10);
+            //const shortest = leftAngleDiff < rightAngleDiff ? "left" : "right";
+            //shortest == "left" ? this.createDotForTesting(leftX, leftY, "green", 10) : this.createDotForTesting(rightX, rightY, "orange", 10);
 
             //checks which angle is smaller which represents the shorter path around the terrain
             const returnVal = leftAngleDiff < rightAngleDiff ? {x: leftX, y: leftY} : {x: rightX, y: rightY};
@@ -631,7 +681,7 @@ export const itemClass = class {
         //executePathingVisual is a recursive function that finds the path two the nearest target, checks what terrain is 
         //in the way, finds the shortest path around that terrain, and then calls itself again to check if there is any
         //terrain in the way now we've gone around gthe first bit of terrain
-        const executePathingVisual = (targetToPathToEPV, startCoords) => {
+        const executePathingVisualisation = (targetToPathToEPV, startCoords) => {
             //breaks out of the loop if it has been going for too long
             executePathingVisualCounter++;
             if (executePathingVisualCounter > 5) { return; }
@@ -665,10 +715,8 @@ export const itemClass = class {
             //visual drawing code
             distanceToNextPoint = Math.sqrt(Math.pow(nextPoint.x - startingCoordsOfThisRun.x, 2) + Math.pow(nextPoint.y - startingCoordsOfThisRun.y, 2));
             visualisePathingBetweenTwoPoints(nextPoint, distanceToNextPoint, startCoords); 
-            executePathingVisual(targetToPathToEPV, nextPoint);
+            executePathingVisualisation(targetToPathToEPV, nextPoint);
         }
-
-        
         //executePathingVisual(targetToPathTo);
 
         //creates a function that returns the angle to travel around any terrain
@@ -684,7 +732,7 @@ export const itemClass = class {
             //console.log(shortestPath)
             //find the angle to travel to get to the shortest path
             //calculates the distance between this item and shortest path point
-            const distanceToShortestPath = Math.sqrt(Math.pow(shortestPath.x - this.x, 2) + Math.pow(shortestPath.y - this.y, 2));
+            //const distanceToShortestPath = Math.sqrt(Math.pow(shortestPath.x - this.x, 2) + Math.pow(shortestPath.y - this.y, 2));
             //visualisePathingBetweenTwoPoints(shortestPath, distanceToShortestPath);
             const angle = this.getDirection(shortestPath);  
             return angle;
@@ -697,24 +745,20 @@ export const itemClass = class {
         this.getNearestItemsAndTerrain();   //looping through all items to find the ones relevant for moving
         //console.log(`for ${this.id} ${this.team} ${this.type}\n, the nearestPredator is ${this.nearestPredator} and the nearestPrey is ${this.nearestPrey}\n, the nearestPredatorDistance is ${this.nearestPredatorDistance} and the nearestPreyDistance is ${this.nearestPreyDistance}`);
         
+        this.topLeftY = this.topLeftY;
+
         //determine if the item is moving to predator or prey
         let target;
         let angle = 0;
         if (this.nearestPredatorDistance < this.nearestPreyDistance) {
             target = this.nearestPredator; 
             //console.log(`pathing is ${this.pathing()} while getDirectionGives ${this.getDirection(target)}`)
-
-            //angle += this.pathing();
             angle += this.getDirection(target) + 180;   //180 because we move away from predators
-
         } 
         else { 
             target = this.nearestPrey; 
-
-            //angle += 180 + this.getDirection(target);
-            angle += this.pathing();                
             //console.log(`pathing is ${this.pathing()} while getDirectionGives ${this.getDirection(target)}`);
-
+            angle += this.pathing();                
         }
     
         //move the the right distance at the right angle to move toward nearest target
@@ -724,12 +768,6 @@ export const itemClass = class {
         const collisionDetectionTerrain = (terrainId) => {
 
             if (terrainId == null) { return false; }
-    
-            //checks each corner of the square to see if it is within the radius of the circle
-            //returns true if any corner is within the radius of the circle else false
-                
-            
-            
             //returns true if the point is within the circle area
             const checkIfPointIsWithinCircle = (pointX, pointY, terrainIdCIPIWC) => {
                 //circle constants 
@@ -745,30 +783,14 @@ export const itemClass = class {
             //and the diameter of the circle being the distance it moves, so to find where the item moves along the perimeter
             //of the circle, we can find our two options for each direction using formula of intersection of two circles
             const calculateNewPosOnPerimeter = (startingPointX, startingPointY, movedPointX, movedPointY, terrainIdCNPOP) => {
-                //circle constants 
+                //circle constants of terrain circle
                 const r1 = data.allTerrain[terrainIdCNPOP].radius + this.speed;
                 const x1 = data.allTerrain[terrainIdCNPOP].x;
                 const y1 = data.allTerrain[terrainIdCNPOP].y;
-                //the origipointYnal points
-                const originalPointX = startingPointX;
-                const originalPointY = startingPointY;
-                //circle properties
+                //circle constants of potential movement "circle"
                 const r2 = this.speed;
                 let x2 = startingPointX;
                 let y2 = startingPointY;
-                
-                /*
-                //if original position is within radius move to the edge of the circle
-                if (checkIfPointIsWithinCircle(originalPointX, originalPointY)) 
-                { 
-                    const angleToCenter = this.getDirection({x: x1, y: y1}) + 180; //180 because we move away from the center
-                    //new x position is the diameter of the circle * cos(angleToCenter)
-                    const newX = x1 + r1 * Math.cos(angleToCenter * Math.PI / 180);
-                    //new y position is the diameter of the circle * sin(angleToCenter)
-                    const newY = y1 + r1 * Math.sin(angleToCenter * Math.PI / 180);
-                    //console.log(`newX is ${newX} and newY is ${newY}`);
-                    return {x: newX, y: newY}; 
-                } */
 
                 //d is the distance between centers
                 const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -794,17 +816,14 @@ export const itemClass = class {
                 //console.log(`point1x is ${point1x}, point1y is ${point1y}, point2x is ${point2x}, point2y is ${point2y}`);
 
                 //in order to find which point is best, we find out the smallest distance between each point and the collision point
-                //the "collision points"
-                const collisionPointX = x2 + moveX;
-                const collisionPointY = y2 + moveY;
                 //if collision points or original points an Nan then console log
-                if (isNaN(collisionPointX) || isNaN(collisionPointY) || isNaN(originalPointX) || isNaN(originalPointY)) {
-                    console.log(`collisionPointX is ${collisionPointX}, collisionPointY is ${collisionPointY}, originalPointX is ${originalPointX}, originalPointY is ${originalPointY}`);
+                if (isNaN(movedPointX) || isNaN(movedPointY) || isNaN(startingPointX) || isNaN(startingPointY)) {
+                    console.log(`movedPointX is ${movedPointX}, collisionPointY is ${movedPointY}, originalPointX is ${startingPointX}, originalPointY is ${startingPointY}`);
                 }
 
                 //the closest point to the collision point is the one we want 
-                const p1DistancetoCollisionPoint = Math.sqrt(Math.pow(collisionPointX - point1x, 2) + Math.pow(collisionPointY - point1y, 2));
-                const p2DistancetoCollisionPoint = Math.sqrt(Math.pow(collisionPointX - point2x, 2) + Math.pow(collisionPointY - point2y, 2));
+                const p1DistancetoCollisionPoint = Math.sqrt(Math.pow(movedPointX - point1x, 2) + Math.pow(movedPointY - point1y, 2));
+                const p2DistancetoCollisionPoint = Math.sqrt(Math.pow(movedPointX - point2x, 2) + Math.pow(movedPointY - point2y, 2));
                 //if those variables are NaN then console log
                 if (isNaN(p1DistancetoCollisionPoint) || isNaN(p2DistancetoCollisionPoint)) {
                     console.log(`p1DistancetoCollisionPoint is ${p1DistancetoCollisionPoint}, p2DistancetoCollisionPoint is ${p2DistancetoCollisionPoint}`);
@@ -817,6 +836,8 @@ export const itemClass = class {
 
             }
 
+            //checks each corner of the square to see if it is within the radius of the circle
+            //returns true if any corner is within the radius of the circle else false
             let startingX, startingY, movedX, movedY;
             //checks the center for testing
             startingX = this.x; 
@@ -886,21 +907,25 @@ export const itemClass = class {
             movedY = startingY + moveY;
             if (checkIfPointIsWithinCircle(movedX, movedY, terrainId)) { 
                 const newPosition = calculateNewPosOnPerimeter(startingX, startingY, movedX, movedY, terrainId);
-                this.topLeftX = newPosition.x - this.width;
-                this.topLeftY = newPosition.y - this.height;
+                this.topLeftX = newPosition.x - this.width; 
+                this.topLeftY = newPosition.y - this.height; 
                 
                 return true; 
             }
-            
-            
             
             //console.log(`targetRadius is ${targetRadius}, this.x is ${this.x}, this.y is ${this.y}, `);
             return false;
         
         }
-        const wasInTerrain = collisionDetectionTerrain(this.nearestTerrain);
-
-        if (wasInTerrain) { return; }
+        //adjust point if the new point was
+        const newPointWasInTerrain = collisionDetectionTerrain(this.nearestTerrain);
+        if (newPointWasInTerrain) { 
+            //check for collisions
+            this.collisionDetectionItem(this.nearestPredator);
+            this.collisionDetectionItem(this.nearestPrey);
+            this.collisionDetectionItem(this.nearestSame);
+            return; 
+        }
 
         this.x += moveX;
         this.y += moveY;
@@ -909,6 +934,5 @@ export const itemClass = class {
         this.collisionDetectionItem(this.nearestPredator);
         this.collisionDetectionItem(this.nearestPrey);
         this.collisionDetectionItem(this.nearestSame);
-        //collisionDetectionTerrain(this.nearestTerrain);
     }
 }
