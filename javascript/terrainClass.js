@@ -54,5 +54,44 @@ export const terrainClass = class {
         this.topLeftY = this.y - this.radius;
         this.element.style.top = `${this.topLeftY}px`;
     }
+    //checks if an item collides with this terrain, if it does, it returns the a position of the item
+    collisionWithItem(itemid) {     
+        //item variable
+        const item = data.allItems[itemid];
+        const itemTopLeftX = item.topLeftX;
+        const itemTopLeftY = item.topLeftY;
+
+        //checking if the item is colliding with the nearest terrain
+        const isPointWithTerrain = (checkingX, checkingY) => {
+            const pointsDistanceToCenter = Math.sqrt(Math.pow(checkingX - this.x, 2) + Math.pow(checkingY - this.y, 2));
+            const distanceToCheck = this.radius;
+            return pointsDistanceToCenter < distanceToCheck;
+        }
+ 
+        //this function returns the new position of the item if it is colliding with a terrain
+        const getNewPositionIfCollidingWithTerrain = () => {
+            const angle = 180 + item.getDirection(this, null, "trying to move into terrain and being prevented by TopLeftY rules");    //180 because we move away from terrain
+            const pointX = this.x + this.radius * Math.cos(angle * Math.PI / 180);
+            const pointY = this.y + this.radius * Math.sin(angle * Math.PI / 180);
+            return {x: pointX, y: pointY};
+        }
+
+        //checking each corner of the item to see if it is colliding with the nearest terrain
+        if (isPointWithTerrain(itemTopLeftX, itemTopLeftY)) {   //top left corner
+            const newPosition = getNewPositionIfCollidingWithTerrain(); 
+            return newPosition;
+        } else if (isPointWithTerrain(itemTopLeftX, itemTopLeftY + item.height)) { //bottom left corner
+            const newPosition = getNewPositionIfCollidingWithTerrain(); 
+            return newPosition;
+        } else if (isPointWithTerrain(itemTopLeftX + item.width, itemTopLeftY)) { //top right corner
+            const newPosition = getNewPositionIfCollidingWithTerrain(); 
+            return newPosition;
+        } else if (isPointWithTerrain(itemTopLeftX + item.width, itemTopLeftY + item.height)) { //bottom right corner
+            const newPosition = getNewPositionIfCollidingWithTerrain(); 
+            return newPosition;
+        } else {
+            return false;
+        }
+    }
 }
 

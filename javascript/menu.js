@@ -206,18 +206,30 @@ export const populateFieldClassic = (num) => {
     new terrainClass("circle", 100, {x: 1275, y: 230}); //6
     new terrainClass("circle", 100, {x: 625, y: 190}); //7
 
-
-    
-
-
-
     //function to make the items come from the mouse initially 
     const sendItemsToRandomPosition = (itemToSend) => {
-        let itemX = Math.random() * data.screenWidth; 
-        let itemY = Math.random() * data.screenHeight;
+        let itemShouldBePlaced = false;
 
+        while (!itemShouldBePlaced) {
+            let itemX = Math.random() * data.screenWidth; 
+            let itemY = Math.random() * data.screenHeight;
             itemToSend.x = itemX; 
             itemToSend.y = itemY; 
+
+            //assume no collision initially
+            let collision = false;
+            for(let terrain of data.allTerrain) {
+                if (terrain.collisionWithItem(itemToSend.id)) {
+                    collision = true;
+                    break; //no need to check further, collision found
+                }
+            }
+
+            // If no collision, we can place the item
+            if (!collision) {
+                itemShouldBePlaced = true;
+            }
+        }
     }
 
     const createEqualNumberOfUnalignedItems = (i, argSpecificsForItem) => {

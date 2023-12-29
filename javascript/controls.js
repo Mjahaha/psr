@@ -62,7 +62,7 @@ export const drawCircleToPushItems = (event) => {
 
   //creates a duplicate of the data.allItems array to remember coords    
   prePushedItemInfo = data.allItems.map(item => ({ ...item }));
-  console.log(`cycle started.`)
+  //console.log(`cycle started.`)
 
   //removes transition from all items, the transitions adds a delay to pushing the elements
   data.allItems.forEach(item => {
@@ -118,7 +118,7 @@ export const drawCircleToPushItems = (event) => {
     radius = null; 
     prePushedItemInfo = []; 
     circleDiv.remove();
-    console.log(`cycle complete`); 
+    //console.log(`cycle complete`); 
     document.body.removeEventListener('mousemove', mouseMoveChangesCircleSize);
   
     //adds transition back to all items
