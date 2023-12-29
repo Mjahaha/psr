@@ -20,6 +20,7 @@ export const itemClass = class {
         this.alive = true;
         this.setArrays();
         data.allItems.forEach((item) => { item.setArrays(); });
+        this.itemDoesConsoleLogs = false;
         //the nearest item details
         this.nearestPrey = null;
         this.nearestPreyDistance = 100000;
@@ -44,6 +45,7 @@ export const itemClass = class {
         this.element.addEventListener('click', (event) => {
             console.log(this); 
             console.log(data);
+            this.itemDoesConsoleLogs = true;
         });
         data.field.appendChild(this.element);
     }
@@ -109,7 +111,7 @@ export const itemClass = class {
         //this function returns the new position of the item if it is colliding with a terrain
         const getNewPositionIfCollidingWithTerrain = () => {
             const terrain = data.allTerrain[this.nearestTerrain];
-            const angle = 180 + this.getDirection(terrain);    //180 because we move away from terrain
+            const angle = 180 + this.getDirection(terrain, null, "trying to move into terrain and being prevented by TopLeftY rules");    //180 because we move away from terrain
             const pointX = terrain.x + terrain.radius * Math.cos(angle * Math.PI / 180);
             const pointY = terrain.y + terrain.radius * Math.sin(angle * Math.PI / 180);
             return {x: pointX, y: pointY};
@@ -353,7 +355,7 @@ export const itemClass = class {
        // console.log(`id:${this.id}, nearestSame is ${this.nearestSame}, nearestSameDistance is ${this.nearestSameDistance}`);
     }
 
-    getDirection(target, startCoordObjGD) {    //returns the angle to travel. Taking an ID for items, or a JSON with an x and y property
+    getDirection(target, startCoordObjGD, locationOfFunctionCall) {    //returns the angle to travel. Taking an ID for items, or a JSON with an x and y property
         //finding the targets X and Ys
         let targetX, targetY;
         if (typeof target == "object" || typeof target == "function") {
@@ -376,6 +378,11 @@ export const itemClass = class {
         }
         
         let angle = Math.atan2(targetY - startY, targetX - startX) * 180 / Math.PI;
+        if (this.itemDoesConsoleLogs && locationOfFunctionCall) {
+            console.log(this);
+            console.log(locationOfFunctionCall);
+            console.log(`the angle is ${angle}\n and the targetX is ${targetX} and the targetY is ${targetY} and the startX is ${startX} and the startY is ${startY}`);
+        }
         return angle;
     }
 
@@ -475,7 +482,7 @@ export const itemClass = class {
         
         //actions for if item is colliding with a same item
         if (data.allItems[targetId].type == this.type || data.allItems[targetId].team == this.team) {
-            const angle = 180 + this.getDirection(this.nearestSame);    //180 because we move away from sames
+            const angle = 180 + this.getDirection(this.nearestSame, null, "colliding with a same");    //180 because we move away from sames
             const moveX = this.speed * Math.cos(angle * Math.PI / 180);
             const moveY = this.speed * Math.sin(angle * Math.PI / 180);
             this.topLeftX += moveX;
@@ -555,7 +562,7 @@ export const itemClass = class {
         
         //actions for if item is colliding with a terrain
         if (data.allTerrain[targetId].type === "circle") {
-            const angle = 180 + this.getDirection(this.nearestTerrain);    //180 because we move away from terrain
+            const angle = 180 + this.getDirection(this.nearestTerrain, null, "colliding with a terrain");    //180 because we move away from terrain
             const moveX = this.speed * Math.cos(angle * Math.PI / 180);
             const moveY = this.speed * Math.sin(angle * Math.PI / 180);
             this.topLeftX += moveX;
@@ -602,7 +609,7 @@ export const itemClass = class {
             }
             //general variables
             const terrainX = terrain.x, terrainY = terrain.y;
-            const howFarPastTerrainToGo = Math.max(this.height, this.width) * 0.9;  
+            const howFarPastTerrainToGo = Math.max(this.height, this.width) * 0;  
             const angleToTerrain = this.getDirection({x: terrainX, y: terrainY}, startCoordsObjSPAT);
             const angleToTarget = this.getDirection(targetToPathTo, startCoordsObjSPAT);
 
@@ -641,7 +648,12 @@ export const itemClass = class {
             
             data.allTerrain.forEach(terrain => {
                 const thisDistance = Math.sqrt(Math.pow(terrain.x - startingCoordsOfThisRun.x, 2) + Math.pow(terrain.y - startingCoordsOfThisRun.y, 2));
-                const intersects = doesStraightLinePathIntersectTerrain(targetToCheck, terrain, startingCoordsOfThisRun);
+                const angleToPrey = this.getDirection(targetToCheck, startingCoordsOfThisRun);
+                const angleToTerrain = this.getDirection({x: terrain.x, y: terrain.y}, startingCoordsOfThisRun);
+                let intersects = false;
+                if ( Math.abs(angleToPrey - angleToTerrain) < 90) {
+                    intersects = doesStraightLinePathIntersectTerrain(targetToCheck, terrain, startingCoordsOfThisRun); 
+                }
                 if (intersects && thisDistance < distanceToClosestIntersectingTerrain) {
                     closestIntersectingTerrainId = terrain.id;
                     distanceToClosestIntersectingTerrain = thisDistance;
@@ -725,7 +737,7 @@ export const itemClass = class {
             const closestTerrainInTheWay = findClosestTerrainInTheWay(targetToPathTo);
             //console.log(closestTerrainInTheWay)
             if (closestTerrainInTheWay === false) { 
-                return this.getDirection(targetToPathTo.id); 
+                return this.getDirection(targetToPathTo.id, null, "using pathing and there was no terrain in the way"); 
             }
             //find the shortest path around the terrain
             const shortestPath = shortestPathAroundTerrain(closestTerrainInTheWay.terrain);
@@ -734,7 +746,7 @@ export const itemClass = class {
             //calculates the distance between this item and shortest path point
             //const distanceToShortestPath = Math.sqrt(Math.pow(shortestPath.x - this.x, 2) + Math.pow(shortestPath.y - this.y, 2));
             //visualisePathingBetweenTwoPoints(shortestPath, distanceToShortestPath);
-            const angle = this.getDirection(shortestPath);  
+            const angle = this.getDirection(shortestPath, null, "using pathing and there was a terrain in the way");  
             return angle;
         }
 
@@ -745,15 +757,15 @@ export const itemClass = class {
         this.getNearestItemsAndTerrain();   //looping through all items to find the ones relevant for moving
         //console.log(`for ${this.id} ${this.team} ${this.type}\n, the nearestPredator is ${this.nearestPredator} and the nearestPrey is ${this.nearestPrey}\n, the nearestPredatorDistance is ${this.nearestPredatorDistance} and the nearestPreyDistance is ${this.nearestPreyDistance}`);
         
-        this.topLeftY = this.topLeftY;
+        this.topLeftY = this.topLeftY; 
 
         //determine if the item is moving to predator or prey
         let target;
         let angle = 0;
         if (this.nearestPredatorDistance < this.nearestPreyDistance) {
             target = this.nearestPredator; 
-            //console.log(`pathing is ${this.pathing()} while getDirectionGives ${this.getDirection(target)}`)
-            angle += this.getDirection(target) + 180;   //180 because we move away from predators
+            //console.log(`pathing is ${this.pathing()} while getDirectionGives ${this.getDirection(target)}`); 
+            angle += this.getDirection(target, null, "running away from prey") + 180;   //180 because we move away from predators
         } 
         else { 
             target = this.nearestPrey; 
@@ -784,6 +796,12 @@ export const itemClass = class {
             //of the circle, we can find our two options for each direction using formula of intersection of two circles
             const calculateNewPosOnPerimeter = (startingPointX, startingPointY, movedPointX, movedPointY, terrainIdCNPOP) => {
                 //circle constants of terrain circle
+                if (data.allTerrain[terrainIdCNPOP].hasOwnProperty("radius") == false) { 
+                    //logs the id, the item itself 
+                    console.log(`the id is ${this.id}`); 
+                    console.log(this); 
+                    console.log(`terrainId is ${terrainIdCNPOP}`); 
+                }
                 const r1 = data.allTerrain[terrainIdCNPOP].radius + this.speed;
                 const x1 = data.allTerrain[terrainIdCNPOP].x;
                 const y1 = data.allTerrain[terrainIdCNPOP].y;
@@ -793,10 +811,10 @@ export const itemClass = class {
                 let y2 = startingPointY;
 
                 //d is the distance between centers
-                const d = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                const d = Math.max(Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)), 0.1)
                 //variables for point equations 
                 const a = (Math.pow(r1, 2) - Math.pow(r2, 2) + Math.pow(d, 2)) / (2 * d);
-                const h = Math.sqrt(Math.pow(r1, 2) - Math.pow(a, 2));
+                const h = Math.sqrt(Math.abs(Math.pow(r1, 2) - Math.pow(a, 2)));    //abs because we don't quare root of a negative
                 //if d a or h are NaN then console log
                 if (isNaN(d) || isNaN(a) || isNaN(h)) {
                     console.log(`r1 is ${r1}, r2 is ${r2}, y1 is ${y1}, y2 is ${y2}, x1 is ${x1}, x2 is ${x2}`);
@@ -848,7 +866,7 @@ export const itemClass = class {
             //console.log(`moveX is ${moveX} and moveY is ${moveY} and height is ${this.height} and width is ${this.width}`)
             if (checkIfPointIsWithinCircle(movedX, movedY, terrainId)) { 
                 //set this.x and this.y position to the returned point
-                const newPosition = calculateNewPosOnPerimeter(startingX, startingY, terrainId);
+                const newPosition = calculateNewPosOnPerimeter(startingX, startingY, movedX, movedY, terrainId);
                 //console.log(`thisX is ${thisX}, thisY is ${thisY},`)
                 //console.log(`newPosition is ${newPosition.x}, ${newPosition.y}`)
                 this.x = newPosition.x;

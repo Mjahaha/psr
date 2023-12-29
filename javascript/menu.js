@@ -197,8 +197,18 @@ const sendItemsToField = (num, functionToAssignItemPos, functionToCreateItems) =
 
 //this function populates the field with 'num' of unaligned items
 export const populateFieldClassic = (num) => {
-    new terrainClass("circle", 100, {x: 650, y: 475});
-    //new terrainClass("circle", 100, {x: 1000, y: 475});
+    new terrainClass("circle", 100, {x: 650, y: 475});  //0
+    new terrainClass("circle", 100, {x: 1000, y: 375}); //1
+    new terrainClass("circle", 100, {x: 200, y: 575});  //2
+    new terrainClass("circle", 100, {x: 1100, y: 775}); //3
+    new terrainClass("circle", 100, {x: 200, y: 305});  //4
+    new terrainClass("circle", 100, {x: 630, y: 775});  //5
+    new terrainClass("circle", 100, {x: 1275, y: 230}); //6
+    new terrainClass("circle", 100, {x: 625, y: 190}); //7
+
+
+    
+
 
 
     //function to make the items come from the mouse initially 
