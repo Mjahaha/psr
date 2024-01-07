@@ -178,3 +178,6 @@ input[type=submit]:hover, input[type=button]:hover {
 .paper.red { background-image: url("./images/paperRed.png"); }
 .scissors.red { background-image: url("./images/scissorsRed.png"); }
 .rock.red { background-image: url("./images/rockRed.png"); }
+.rock.green { background-image: url("./images/rockGreen.png"); }
+.paper.green { background-image: url("./images/paperGreen.png"); }
+.scissors.green { background-image: url("./images/scissorsGreen.png"); }

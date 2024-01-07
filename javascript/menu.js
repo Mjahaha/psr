@@ -1,5 +1,5 @@
 import { data, myData, resetData } from "./data.js";
-import { drawCircleToPushItems } from "./controls.js";
+import { drawCircleToPushItems, addPlayerRock } from "./controls.js";
 import { itemClass } from "./itemClass.js";
 import { terrainClass } from "./terrainClass.js";
 
@@ -154,6 +154,7 @@ export const setUpSkirmishDetails = () => {
         event.preventDefault();
         clearInterval(data.gameTimestepId);
     });
+
 }
 
 
@@ -161,7 +162,6 @@ const sendItemsToField = (num, functionToAssignItemPos, functionToCreateItems) =
     let i = 1;
     data.widthOfSidebar = ((data.sidebar && data.sidebar.offsetWidth) || 0);
     data.screenWidth = window.innerWidth - data.widthOfSidebar;
-    document.body.addEventListener('mousedown', drawCircleToPushItems);
 
     const createAnItem = setInterval(() => {
 
@@ -196,7 +196,7 @@ const sendItemsToField = (num, functionToAssignItemPos, functionToCreateItems) =
 }
 
 //this function populates the field with 'num' of unaligned items
-export const populateFieldClassic = (num) => {
+const populateFieldClassic = (num) => {
     new terrainClass("circle", 100, {x: 650, y: 475});  //0
     new terrainClass("circle", 100, {x: 1000, y: 375}); //1
     new terrainClass("circle", 100, {x: 200, y: 575});  //2
@@ -245,7 +245,7 @@ export const populateFieldClassic = (num) => {
 }
 
 //this function populates the field with 'num' of items on each team 
-export const populateFieldTeamsRand = (num) => {
+const populateFieldTeamsRand = (num) => {
 
     const sendItemsToRandomPosition = (itemToSend) => {
         let itemX = Math.random() * data.screenWidth; 
@@ -322,5 +322,34 @@ export const updateSidebar = () => {
 
     const content = greenDiv + unalignedDiv + redDiv + blueDiv;
     data.sidebar.innerHTML = content;
+
+    addPlayerToolsIntoSidebar();
+
+
 }
 
+const addPlayerToolsIntoSidebar = () => {
+    let containerElement = document.createElement('div');
+    containerElement.style.width = "100%";
+
+    let elementHeading = document.createElement('h4');
+    elementHeading.innerHTML = "Player Tools";
+    containerElement.appendChild(elementHeading);
+    
+    let addRockButton = document.createElement('button'); 
+    addRockButton.id = "addRockButton";
+    addRockButton.value = "addRock";
+    addRockButton.innerHTML = "<img src='images/rockGreen.png' style='width: 50px; height: 50px;'>";
+    containerElement.appendChild(addRockButton);
+    // when add rock button is clicked add listener
+    addRockButton.addEventListener('mousedown', addPlayerRock); 
+
+
+
+    //document.body.addEventListener('mousedown', drawCircleToPushItems);
+
+    
+
+    data.sidebar.appendChild(containerElement);
+  
+  }

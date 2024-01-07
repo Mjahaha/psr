@@ -1,44 +1,5 @@
-import { populateFieldClassic } from "./menu.js";
 import { data } from "./data.js";
 import { itemClass } from "./itemClass.js";
-import { terrainClass } from "./terrainClass.js";
-
-// Get the canvas element
-//populateFieldClassic(100);
-
-/*
-new itemClass("rock", "unaligned", {x: 200, y: 450}); 
-new itemClass("paper", "unaligned", {x: 750, y: 350}); 
-new itemClass("paper", "unaligned", {x: 750, y: 450}); 
-
-//new itemClass("scissors", "unaligned", {x: 300, y: 380});
-new terrainClass("circle", 100, {x: 650, y: 475});
-//new terrainClass("circle", 80, {x: 900, y: 475});
-//new terrainClass("circle", 80, {x: 1200, y: 505});
-
-/*
-const intervalId = setInterval(() => {
-  data.allItems[1].moveItem();
-  data.allItems[2].moveItem();
-}, 100);
-
-document.getElementById('stopBattle').addEventListener('click', (event) => {
-  console.log("stop");
-  event.preventDefault();
-  clearInterval(intervalId);
-});
-*/
-
-/*
-new itemClass("rock", "unaligned", {y: 300, x: 490});
-new itemClass("rock", "unaligned", {y: 300, x: 250});
-new itemClass("paper", "unaligned", {y: 900, x: 450});
-new itemClass("scissors", "unaligned", {y: 990, x: 450});
-new terrainClass("circle", 100, {y: 650, x: 475});
-*/
-
-
-
 
 export const drawCircleToPushItems = (event) => {
   // Store the initial variables starting position
@@ -133,9 +94,32 @@ export const drawCircleToPushItems = (event) => {
 
 }
 
+
+export const addPlayerRock = (event) => {
+  // add transparent rock that follows mouse
+  let rock = document.createElement('div');
+  rock.classList.add('rock'); 
+  rock.classList.add('green'); 
+  rock.style.cssText = `
+    height: 60px;
+    width: 60px;
+    position: absolute;
+    top: ${data.mouseY + 30}px;
+    left: ${data.mouseX + 30}px;
+    opacity: 0.5;
+    z-index: 2;
+    transition: all ${10}ms linear;
+  `;
+  data.field.appendChild(rock);
+
+  // have rock follow the mouse 
+  const moveRock = setInterval(() => {
+    rock.style.top = `${data.mouseY}px`;
+    rock.style.left = `${data.mouseX}px`;
+  }, 10); 
   
-// Add event listeners for mouse down, move, and up events
-document.body.addEventListener('mousedown', drawCircleToPushItems);
-document.body.style.width = "100vw";
-document.body.style.height = "100vh";
-  
+  // add actual rock when mouse is clicked
+  rock.addEventListener('click', () => {
+    new itemClass(rock, 'rock', 'green', {x: data.mouseX, y: data.mouseY});
+  });  
+}
