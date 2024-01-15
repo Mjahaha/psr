@@ -14,8 +14,8 @@ export const itemClass = class {
         this._alive = true;
         this.width = 60;
         this.height = 60;
-        this.topLeftX = this.x + this.width / 2;
-        this.topLeftY = this.y + this.height / 2;
+        this.topLeftX = this.x - this.width / 2;
+        this.topLeftY = this.y - this.height / 2;
         this.speed = data.distance;
         this.alive = true;
         this.setArrays();
@@ -471,12 +471,20 @@ export const itemClass = class {
             { this.alive = false; }
         if (data.captureKill == "capture" && data.allItems[targetId].type == this.preyType) //the items wins - catpure
             {
-                if (this.team === "unaligned") { data.allItems[targetId].type = this.type; }    //if the item is unaligned, duplicate the unaligned item
+                if (this.team === "unaligned") { 
+                    //if the item is unaligned, duplicate the unaligned item
+                    data.allItems[targetId].type = this.type; 
+                    data.allItems[targetId].team = "unaligned";
+                }    
                 else { data.allItems[targetId].team = this.team; }   //if the item is on a team, swap targets team
             }
         if (data.captureKill == "capture" && data.allItems[targetId].type == this.predatorType) //the target wins - capture
             {
-                if (data.allItems[targetId].team === "unaligned") { this.type = data.allItems[targetId].type; }    //if the target is unaligned, duplicate the unaligned target
+                if (data.allItems[targetId].team === "unaligned") { 
+                    //if the target is unaligned, duplicate the unaligned target
+                    this.type = data.allItems[targetId].type; 
+                    this.team = "unaligned";
+                }    
                 else { this.team = data.allItems[targetId].team; }   //if the target is on a team, swap item team
             }
         

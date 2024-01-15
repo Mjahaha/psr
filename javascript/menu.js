@@ -1,5 +1,5 @@
 import { data, myData, resetData } from "./data.js";
-import { drawCircleToPushItems, addPlayerRock } from "./controls.js";
+import { drawCircleToPushItems, addPlayerItem } from "./controls.js";
 import { itemClass } from "./itemClass.js";
 import { terrainClass } from "./terrainClass.js";
 
@@ -335,14 +335,29 @@ const addPlayerToolsIntoSidebar = () => {
     let elementHeading = document.createElement('h4');
     elementHeading.innerHTML = "Player Tools";
     containerElement.appendChild(elementHeading);
+
+    let makeButtonUnpressed = () => { return }; // same the function that is assigned to unpush the button, initially does nothing
+    function createItemButton(itemType) {
+        let addButton = document.createElement('button'); 
+        addButton.id = `add${itemType.charAt(0).toUpperCase() + itemType.slice(1)}Button`;
+        addButton.value = `add${itemType}`;
+        addButton.innerHTML = `<img src='images/${itemType}Green.png' style='width: 50px; height: 50px;'>`;
+        containerElement.appendChild(addButton);
+        
+        const addPlayerItemFunc = () => {
+            console.log(`makeButtonUnpressed ${makeButtonUnpressed}`);
+            makeButtonUnpressed();
+            makeButtonUnpressed = addPlayerItem(itemType);
+        };
+        
+        addButton.addEventListener('mousedown', addPlayerItemFunc); 
+    }
     
-    let addRockButton = document.createElement('button'); 
-    addRockButton.id = "addRockButton";
-    addRockButton.value = "addRock";
-    addRockButton.innerHTML = "<img src='images/rockGreen.png' style='width: 50px; height: 50px;'>";
-    containerElement.appendChild(addRockButton);
-    // when add rock button is clicked add listener
-    addRockButton.addEventListener('mousedown', addPlayerRock); 
+    // Now we call the function for each item
+    createItemButton('rock');
+    createItemButton('paper');
+    createItemButton('scissors');
+    
 
 
 

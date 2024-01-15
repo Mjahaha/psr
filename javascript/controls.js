@@ -95,31 +95,39 @@ export const drawCircleToPushItems = (event) => {
 }
 
 
-export const addPlayerRock = (event) => {
+export const addPlayerItem = (type) => {
   // add transparent rock that follows mouse
-  let rock = document.createElement('div');
-  rock.classList.add('rock'); 
-  rock.classList.add('green'); 
-  rock.style.cssText = `
+  let item = document.createElement('div');
+  item.id = 'transparentItemForPlacement';
+  item.classList.add('item', type, 'green'); 
+  item.style.cssText = `
     height: 60px;
     width: 60px;
     position: absolute;
-    top: ${data.mouseY + 30}px;
-    left: ${data.mouseX + 30}px;
+    top: ${data.mouseY - 30}px;
+    left: ${data.mouseX - 30}px;
     opacity: 0.5;
     z-index: 2;
-    transition: all ${10}ms linear;
+    transition: all 10ms linear;
   `;
-  data.field.appendChild(rock);
+  data.field.appendChild(item);
 
   // have rock follow the mouse 
-  const moveRock = setInterval(() => {
-    rock.style.top = `${data.mouseY}px`;
-    rock.style.left = `${data.mouseX}px`;
+  const moveItem = setInterval(() => {
+    item.style.top = `${data.mouseY - 30}px`;
+    item.style.left = `${data.mouseX - 30}px`;
   }, 10); 
   
   // add actual rock when mouse is clicked
-  rock.addEventListener('click', () => {
-    new itemClass(rock, 'rock', 'green', {x: data.mouseX, y: data.mouseY});
+  item.addEventListener('click', () => {
+    new itemClass(type, 'green', {x: (data.mouseX), y: (data.mouseY)});
   });  
+
+  // this function removes the transparent item and stops the interval and listeners
+  const removeItem = () => {
+    console.log('removing item');
+    item.remove();
+    clearInterval(moveItem);
+  }
+  return removeItem;
 }
