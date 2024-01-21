@@ -90,9 +90,8 @@ export const drawCircleToPushItems = (event) => {
     });
   }
 
-  return { mouseMoveChangesCircleSize, finishCircleOnMouseUp};
-  //document.body.addEventListener('mousemove', mouseMoveChangesCircleSize);
-  //document.body.addEventListener('mouseup', finishCircleOnMouseUp);
+  document.body.addEventListener('mousemove', mouseMoveChangesCircleSize);
+  document.body.addEventListener('mouseup', finishCircleOnMouseUp);
   //data.field.addEventListener('mousemove', mouseMoveChangesCircleSize);
   //data.field.addEventListener('mouseup', finishCircleOnMouseUp);
 

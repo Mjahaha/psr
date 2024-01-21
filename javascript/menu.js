@@ -330,6 +330,7 @@ export const updateSidebar = () => {
 
 const addPlayerToolsIntoSidebar = () => {
     let containerElement = document.createElement('div');
+    containerElement.id = "playerToolsContainer";
     containerElement.style.width = "100%";
 
     let elementHeading = document.createElement('h4');
@@ -376,13 +377,12 @@ const addPlayerToolsIntoSidebar = () => {
             `;
         circleButton.appendChild(circleInCircleButton);
 
-        circleButton.addEventListener('mousedown', () => {
-            console.log('circle button clicked')
-            let { mouseMoveChangesCircleSize, finishCircleOnMouseUp} = drawCircleToPushItems();
-            data.field.addEventListener('mousemove', mouseMoveChangesCircleSize);
-            data.field.addEventListener('mouseup', finishCircleOnMouseUp);
+        document.addEventListener('mousedown', drawCircleToPushItems);
 
-        });
+        // sets makeButtonUnpressed to remove the listener
+        makeButtonUnpressed = () => {
+            document.removeEventListener('mousedown', drawCircleToPushItems);
+        }
     }
     addCircleButton();
 
