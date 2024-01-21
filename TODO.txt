@@ -3,7 +3,6 @@ General changes
   a) shows how many items of each type are in play
   b) gives the user controls to set up field initially
 - death pics 
-- add Green 
 
 Types of guys
 - big eater, gets 10px bigger when he captures, if he gets hit, knocks the other item away 100px and looses a sized 

@@ -340,14 +340,14 @@ const addPlayerToolsIntoSidebar = () => {
     function createItemButton(itemType) {
         let addButton = document.createElement('button'); 
         addButton.id = `add${itemType.charAt(0).toUpperCase() + itemType.slice(1)}Button`;
-        addButton.value = `add${itemType}`;
+        addButton.value = `add${itemType.charAt(0).toUpperCase() + itemType.slice(1)}`;
         addButton.innerHTML = `<img src='images/${itemType}Green.png' style='width: 50px; height: 50px;'>`;
         containerElement.appendChild(addButton);
         
         const addPlayerItemFunc = () => {
-            console.log(`makeButtonUnpressed ${makeButtonUnpressed}`);
             makeButtonUnpressed();
             makeButtonUnpressed = addPlayerItem(itemType);
+            document.getElementById('startActualBattle').addEventListener("click", makeButtonUnpressed);
         };
         
         addButton.addEventListener('mousedown', addPlayerItemFunc); 
@@ -357,13 +357,35 @@ const addPlayerToolsIntoSidebar = () => {
     createItemButton('rock');
     createItemButton('paper');
     createItemButton('scissors');
-    
 
+    //adds the circle button
+    const addCircleButton = () => {
+        // make the button to get a push circle 
+        const circleButton = document.createElement('button');
+        circleButton.id = 'addCircleButton';
+        circleButton.value = 'addCircle';
+        containerElement.appendChild(circleButton);
 
+        // add the circle in the button
+        const circleInCircleButton = document.createElement('div');
+        circleInCircleButton.style.cssText = `
+            width: 47px;
+            height: 47px;
+            border-radius: 50%;
+            border: 5px solid black;
+            `;
+        circleButton.appendChild(circleInCircleButton);
 
-    //document.body.addEventListener('mousedown', drawCircleToPushItems);
+        circleButton.addEventListener('mousedown', () => {
+            console.log('circle button clicked')
+            let { mouseMoveChangesCircleSize, finishCircleOnMouseUp} = drawCircleToPushItems();
+            data.field.addEventListener('mousemove', mouseMoveChangesCircleSize);
+            data.field.addEventListener('mouseup', finishCircleOnMouseUp);
 
-    
+        });
+    }
+    addCircleButton();
+
 
     data.sidebar.appendChild(containerElement);
   

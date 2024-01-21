@@ -2,9 +2,10 @@ import { data } from "./data.js";
 import { itemClass } from "./itemClass.js";
 
 export const drawCircleToPushItems = (event) => {
+  console.log("drawCircleToPushItems() called")
   // Store the initial variables starting position
-  let startClickX = event.clientX;  //starting position of X coords
-  let startClickY = event.clientY;  //starting position of Y coords
+  let startClickX = data.mouseX;  //starting position of X coords
+  let startClickY = data.mouseY;  //starting position of Y coords
   let circleDiv = document.createElement('div');
   let radius;
   let prePushedItemInfo = [];  //creates a duplicate of the data.allItems array to remember coords
@@ -34,8 +35,8 @@ export const drawCircleToPushItems = (event) => {
     if (!startClickX && !startClickY) { return; } // Exit if the mouse hasn't been pressed down
   
     // Calculate the distance from the starting position to the current mouse position
-    const dx = event.clientX - startClickX;
-    const dy = event.clientY - startClickY;
+    const dx = data.mouseX - startClickX;
+    const dy = data.mouseY - startClickY;
     radius = Math.sqrt(dx * dx + dy * dy);
   
     // Sets the properties of the circle element
@@ -89,11 +90,13 @@ export const drawCircleToPushItems = (event) => {
     });
   }
 
-  document.body.addEventListener('mousemove', mouseMoveChangesCircleSize);
-  document.body.addEventListener('mouseup', finishCircleOnMouseUp);
+  return { mouseMoveChangesCircleSize, finishCircleOnMouseUp};
+  //document.body.addEventListener('mousemove', mouseMoveChangesCircleSize);
+  //document.body.addEventListener('mouseup', finishCircleOnMouseUp);
+  //data.field.addEventListener('mousemove', mouseMoveChangesCircleSize);
+  //data.field.addEventListener('mouseup', finishCircleOnMouseUp);
 
 }
-
 
 export const addPlayerItem = (type) => {
   // add transparent rock that follows mouse
@@ -125,7 +128,6 @@ export const addPlayerItem = (type) => {
 
   // this function removes the transparent item and stops the interval and listeners
   const removeItem = () => {
-    console.log('removing item');
     item.remove();
     clearInterval(moveItem);
   }
